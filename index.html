@@ -58,6 +58,13 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 .pad.off{opacity:.35;pointer-events:none}
 [hidden]{display:none!important}
 .spin{display:inline-block}.spinning .spin{animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}#refBtn:disabled{opacity:.6}
+.lifts{display:grid;gap:10px;grid-template-columns:1fr}
+.lift{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--bd);border-left:3px solid #ff7a18}
+.lift .n{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lift .v{font-weight:800;font-size:1.05rem;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.lift .v i{font-style:normal;color:var(--mu);font-weight:600;font-size:.8rem}
+.lift .d{color:var(--mu);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lift .e{color:#ffb38a;font-size:.75rem;font-weight:600;text-align:right;white-space:nowrap}
+.lift .sp{grid-column:1/-1;margin-top:6px;height:26px}.lift .sp svg{width:100%;height:26px;display:block}.lift .f{grid-column:1/-1;margin-top:6px;font-size:.7rem;color:var(--mu);letter-spacing:.04em;text-transform:uppercase}
+
 </style><link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="logo-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -81,7 +88,7 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
  <div class="card s4"><h2>Weekly active minutes</h2><canvas id="cMin" height="120"></canvas></div>
  <div class="card s2"><h2>Mix</h2><canvas id="cMix"></canvas></div>
  <div class="card s3"><h2>Running · distance &amp; pace</h2><canvas id="cRun" height="190"></canvas></div>
- <div class="card s3"><h2>Lifts · top set (kg)</h2><canvas id="cLift" height="190"></canvas></div>
+ <div class="card s3"><h2>Lifts · top sets</h2><div class="lifts" id="lifts"></div></div>
  <div class="card s6"><h2>Personal bests</h2><div class="pbs" id="pbs"></div></div>
  <div class="card s6 list"><h2>Recent activity</h2><div id="recent"></div></div>
 </div>
@@ -142,7 +149,7 @@ if(localStorage.getItem('cw-fitness-auth')){const c=cached();if(c){openApp(c.ema
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
 function render({W,S}){
 if(typeof Chart==='undefined')return;
-['cMin','cMix','cRun','cLift'].forEach(id=>Chart.getChart(id)?.destroy());
+['cMin','cMix','cRun'].forEach(id=>Chart.getChart(id)?.destroy());
 // ===== RENDER =====
 const $=id=>document.getElementById(id),sd=d=>d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),fd=d=>d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
 const pace=w=>{const p=w.min/w.km;return Math.floor(p)+':'+String(Math.round(p%1*60)).padStart(2,'0')};
@@ -166,9 +173,13 @@ new Chart(cx,{type:'bar',data:{labels:weeks,datasets:[{label:'Run',data:by('run'
 new Chart($('cMix'),{type:'doughnut',data:{labels:['Run','Ride','Gym'],datasets:[{data:[runs.length,cyc.length,gyms.length],backgroundColor:['#ff5a3c','#3d8bff','#a83cff'],borderWidth:0}]},options:{animation:false,cutout:'72%',plugins:{legend:{position:'bottom'}}}});
 const rx=$('cRun').getContext('2d');
 new Chart(rx,{data:{labels:runs.map(w=>sd(w.date)),datasets:[{type:'line',label:'Distance (km)',data:runs.map(w=>w.km),fill:true,backgroundColor:grad(rx,'rgba(255,90,60,.45)','rgba(255,90,60,0)'),borderColor:'#ff5a3c',tension:.45,pointRadius:0,borderWidth:3},{type:'line',label:'Pace (min/km)',data:runs.map(w=>+(w.min/w.km).toFixed(2)),borderColor:'#ffd166',borderDash:[4,4],tension:.45,pointRadius:0,borderWidth:2,yAxisID:'y1'}]},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{beginAtZero:true,title:{display:true,text:'km'}},y1:{title:{display:true,text:'min/km'},position:'right',reverse:true,grid:{display:false}}}}});
-const lx=$('cLift').getContext('2d'),PAL=[['#ff3d6e','rgba(255,61,110,.3)'],['#00c6ff','rgba(0,198,255,.25)'],['#c13cff','rgba(193,60,255,.3)'],['#ffd166','rgba(255,209,102,.25)'],['#2ee6a6','rgba(46,230,166,.25)']];
+const PAL=[['#ff3d6e','rgba(255,61,110,.3)'],['#00c6ff','rgba(0,198,255,.25)'],['#c13cff','rgba(193,60,255,.3)'],['#ffd166','rgba(255,209,102,.25)'],['#2ee6a6','rgba(46,230,166,.25)']];
 const exs=[...new Set(gyms.flatMap(g=>Object.keys(g.lifts)))].sort();const few=gyms.length<4;
-new Chart(lx,{type:'line',data:{labels:gyms.map(w=>sd(w.date)),datasets:exs.map((k,i)=>{const [c,f]=PAL[i%PAL.length];return{label:k,data:gyms.map(g=>g.lifts[k]??null),borderColor:c,backgroundColor:few?c:grad(lx,f,'rgba(0,0,0,0)'),fill:!few,spanGaps:true,tension:.45,pointRadius:few?6:2,pointHoverRadius:8,borderWidth:3}})},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{beginAtZero:false,suggestedMin:0,title:{display:true,text:'kg'}}},plugins:{legend:{display:exs.length>0}}}});
+const ld=d=>{const n=Math.round((new Date().setHours(0,0,0,0)-new Date(d).setHours(0,0,0,0))/864e5);return n===0?'Today':n===1?'Yesterday':n<7?n+' days ago':sd(d)};
+const e1=(kg,r)=>r>1?kg*(1+r/30):kg;
+const LF=exs.map(k=>{const ss=gyms.filter(g=>g.sets.some(x=>x.k===k&&x.kg)).map(g=>{const t=g.sets.filter(x=>x.k===k&&x.kg).reduce((a,x)=>x.kg>a.kg||(x.kg===a.kg&&(x.reps||0)>(a.reps||0))?x:a);return{date:g.date,kg:t.kg,reps:t.reps,e:e1(t.kg,t.reps),n:g.sets.filter(x=>x.k===k).length}});const l=ss[ss.length-1];return{k,ss,l}}).sort((a,b)=>b.l.date-a.l.date||a.k.localeCompare(b.k));
+const spark=v=>{const W=200,H=26,mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1,pt=v.map((y,i)=>[(i/(v.length-1))*(W-6)+3,H-3-((y-mn)/r)*(H-6)]);return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#ff7a18" stroke-width="2" vector-effect="non-scaling-stroke" points="${pt.map(p=>p.join(',')).join(' ')}"/><circle cx="${pt.at(-1)[0]}" cy="${pt.at(-1)[1]}" r="2.5" fill="#ff3d6e"/></svg>`};
+$('lifts').innerHTML=!LF.length?'<div class="empty">No lifts logged yet.</div>':LF.map(({k,ss,l})=>`<div class="lift"><div class="n" title="${k}">${k}</div><div class="v">${l.kg}<i> kg</i> × ${l.reps??'–'}</div><div class="d">${ld(l.date)} · ${l.n} set${l.n===1?'':'s'}</div><div class="e">e1RM ${Math.round(l.e)} kg</div>${ss.length>1?`<div class="sp">${spark(ss.map(x=>x.e))}</div>`:'<div class="f">First session · trend coming</div>'}</div>`).join('');
 // PBs
 const best=(a,f)=>a.length?a.reduce((x,y)=>f(y)>f(x)?y:x):null,lr=best(runs,w=>w.km),fp=best(runs,w=>-w.min/w.km),lc=best(cyc,w=>w.km);
 const P=[lr&&['🏃','Longest run',lr.km+' km',lr.date],fp&&['⚡','Fastest pace',pace(fp)+' /km',fp.date],lc&&['🚴','Longest ride',lc.km+' km',lc.date],...exs.map(k=>{const g=best(gyms.filter(x=>x.lifts[k]),x=>x.lifts[k]);return g&&['🏋️',k,g.lifts[k]+' kg',g.date]})].filter(Boolean);
