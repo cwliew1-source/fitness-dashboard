@@ -65,6 +65,23 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 .lift .d{color:var(--mu);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lift .e{color:#ffb38a;font-size:.75rem;font-weight:600;text-align:right;white-space:nowrap}
 .lift .sp{grid-column:1/-1;margin-top:6px;height:26px}.lift .sp svg{width:100%;height:26px;display:block}.lift .f{grid-column:1/-1;margin-top:6px;font-size:.7rem;color:var(--mu);letter-spacing:.04em;text-transform:uppercase}
 
+.lift{cursor:pointer;transition:.15s}.lift:hover{border-color:rgba(255,122,24,.5);background:rgba(255,122,24,.06)}.lift:active{transform:scale(.99)}
+#dv{position:fixed;inset:0;z-index:50;background:rgba(5,6,15,.7);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center}
+#dv .sh{width:100%;max-height:92vh;overflow-y:auto;background:#12142a;border:1px solid var(--bd);border-radius:22px 22px 0 0;padding:18px 18px 28px;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(60px)}}
+#dv .hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}#dv .hd h3{flex:1;margin:0;font-size:1.25rem;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dv .x{width:36px;height:36px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,.06);color:var(--tx);font-size:1.1rem;cursor:pointer;flex:none}
+#dv .pbr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+#dv .pbr div{padding:10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--bd);min-width:0}#dv .pbr small{display:block;color:var(--mu);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em}#dv .pbr b{display:block;font-size:1.05rem;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}#dv .pbr i{font-style:normal;color:var(--mu);font-size:.7rem}
+#dv .pbr .hi{border-color:rgba(255,122,24,.5);background:rgba(255,122,24,.08)}
+#dv .ch{position:relative;height:200px;margin-bottom:6px}#dv .nt{color:var(--mu);font-size:.75rem;text-align:center;margin:0 0 14px}
+#dv h4{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+#dv .ses{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--bd);margin-bottom:8px}
+#dv .ses .sd{display:flex;justify-content:space-between;font-weight:700;font-size:.9rem;margin-bottom:6px}#dv .ses .sd span{color:#ffb38a;font-size:.75rem;font-weight:600}
+#dv .st{display:grid;grid-template-columns:52px 1fr;font-size:.88rem;padding:3px 0;font-variant-numeric:tabular-nums}#dv .st small{color:var(--mu)}#dv .st.tp b{color:#ff7a18}
+body.noscroll{overflow:hidden}
+@media(min-width:760px){#dv{align-items:stretch;justify-content:flex-end}#dv .sh{width:460px;max-height:none;height:100%;border-radius:0;animation:sl .2s ease-out}}
+@keyframes sl{from{transform:translateX(40px);opacity:0}}
 </style><link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="logo-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -92,6 +109,7 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
  <div class="card s6"><h2>Personal bests</h2><div class="pbs" id="pbs"></div></div>
  <div class="card s6 list"><h2>Recent activity</h2><div id="recent"></div></div>
 </div>
+<div id="dv" hidden role="dialog" aria-modal="true"><div class="sh" id="dvs"></div></div>
 <footer>fitness.cwliew.com · private</footer>
 </div></div>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
@@ -146,6 +164,30 @@ document.getElementById('refBtn').onclick=async()=>{const b=document.getElementB
  try{render(hydrate(await fetchData()))}catch(e){console.error(e);document.getElementById('sub').textContent='Refresh failed: '+(e.message||e)}finally{b.disabled=false;b.classList.remove('spinning')}};
 document.getElementById('outBtn').onclick=async()=>{localStorage.removeItem(CACHE);await sb.auth.signOut();location.replace(location.pathname)};
 if(localStorage.getItem('cw-fitness-auth')){const c=cached();if(c){openApp(c.email);try{render(hydrate(c));window.__cacheRendered=true}catch(e){console.error(e)}}}
+
+const DV=document.getElementById('dv');let dvOpen=false;
+function openDetail(k,push){const F=(window.__LF||[]).find(x=>x.k===k);if(!F)return;
+ const sd=d=>d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),fl=d=>d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+ const e1=(kg,r)=>r>1?kg*(1+r/30):kg;
+ const S=F.ses.map(s=>{const w=s.sets.filter(x=>x.kg);const t=w.length?w.reduce((a,x)=>x.kg>a.kg||(x.kg===a.kg&&(x.reps||0)>(a.reps||0))?x:a):null;const be=w.length?Math.max(...w.map(x=>e1(x.kg,x.reps))):null;const vol=w.reduce((a,x)=>a+x.kg*(x.reps||0),0);return{...s,t,be,vol}});
+ const v=S.filter(x=>x.t),pw=v.length?v.reduce((a,x)=>x.t.kg>a.t.kg?x:a):null,pe=v.length?v.reduce((a,x)=>x.be>a.be?x:a):null,pv=S.reduce((a,x)=>x.vol>(a?.vol||0)?x:a,null);
+ const pb=(l,val,u,s,hi)=>`<div class="${hi?'hi':''}"><small>${l}</small><b>${val}<i> ${u}</i></b><i>${s?sd(s.date):'–'}</i></div>`;
+ const last=S[S.length-1];
+ document.getElementById('dvs').innerHTML=`<div class="hd"><h3>${k}</h3><button class="x" id="dvx" aria-label="Close">✕</button></div>
+ <div class="pbr">${pb('Heaviest',pw?pw.t.kg+'×'+(pw.t.reps??'–'):'–','kg',pw,pw&&pw===last)}${pb('Best e1RM',pe?Math.round(pe.be):'–','kg',pe,pe&&pe===last)}${pb('Top volume',pv?Math.round(pv.vol).toLocaleString('en-AU'):'–','kg',pv,pv&&pv===last)}</div>
+ <div class="ch"><canvas id="dvc"></canvas></div><p class="nt">${S.length>1?S.length+' sessions · top set &amp; estimated 1RM':'First session logged · the trend builds from your next workout'}</p>
+ <h4>Sessions</h4>${S.slice().reverse().map(s=>{const ti=s.t?s.sets.indexOf(s.t):-1;return `<div class="ses"><div class="sd">${fl(s.date)}<span>${s.t?'e1RM '+Math.round(s.be)+' kg':''}</span></div>${s.sets.map((x,i)=>`<div class="st${i===ti?' tp':''}"><small>Set ${i+1}</small><b>${x.kg!=null?x.kg+' kg':'BW'} × ${x.reps??'–'}</b></div>`).join('')}</div>`}).join('')}`;
+ DV.hidden=false;document.body.classList.add('noscroll');document.getElementById('dvx').onclick=()=>closeDetail();
+ if(push!==false&&!dvOpen)history.pushState({dv:k},'');dvOpen=true;
+ if(typeof Chart!=='undefined'){Chart.getChart('dvc')?.destroy();const one=v.length<2;
+  new Chart(document.getElementById('dvc'),{type:'line',data:{labels:v.map(x=>sd(x.date)),datasets:[{label:'Top set (kg)',data:v.map(x=>x.t.kg),borderColor:'#ff7a18',backgroundColor:'#ff7a18',tension:.35,pointRadius:one?7:3,borderWidth:3},{label:'Est. 1RM (kg)',data:v.map(x=>+x.be.toFixed(1)),borderColor:'#ff3d6e',backgroundColor:'#ff3d6e',borderDash:[5,4],tension:.35,pointRadius:one?7:3,borderWidth:2}]},options:{animation:false,maintainAspectRatio:false,scales:{x:{grid:{display:false},offset:one},y:{suggestedMin:0,title:{display:true,text:'kg'}}},plugins:{legend:{position:'bottom'}}}})}}
+function closeDetail(fromPop){if(!dvOpen)return;dvOpen=false;DV.hidden=true;document.body.classList.remove('noscroll');Chart?.getChart?.('dvc')?.destroy();if(!fromPop&&history.state?.dv)history.back()}
+document.getElementById('lifts').addEventListener('click',e=>{const c=e.target.closest('.lift');if(c)openDetail(c.dataset.k)});
+document.getElementById('lifts').addEventListener('keydown',e=>{const c=e.target.closest('.lift');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openDetail(c.dataset.k)}});
+DV.addEventListener('click',e=>{if(e.target===DV)closeDetail()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
+addEventListener('popstate',()=>closeDetail(true));
+window.__openDetail=openDetail;
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
 function render({W,S}){
 if(typeof Chart==='undefined')return;
@@ -179,7 +221,9 @@ const ld=d=>{const n=Math.round((new Date().setHours(0,0,0,0)-new Date(d).setHou
 const e1=(kg,r)=>r>1?kg*(1+r/30):kg;
 const LF=exs.map(k=>{const ss=gyms.filter(g=>g.sets.some(x=>x.k===k&&x.kg)).map(g=>{const t=g.sets.filter(x=>x.k===k&&x.kg).reduce((a,x)=>x.kg>a.kg||(x.kg===a.kg&&(x.reps||0)>(a.reps||0))?x:a);return{date:g.date,kg:t.kg,reps:t.reps,e:e1(t.kg,t.reps),n:g.sets.filter(x=>x.k===k).length}});const l=ss[ss.length-1];return{k,ss,l}}).sort((a,b)=>b.l.date-a.l.date||a.k.localeCompare(b.k));
 const spark=v=>{const W=200,H=26,mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1,pt=v.map((y,i)=>[(i/(v.length-1))*(W-6)+3,H-3-((y-mn)/r)*(H-6)]);return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#ff7a18" stroke-width="2" vector-effect="non-scaling-stroke" points="${pt.map(p=>p.join(',')).join(' ')}"/><circle cx="${pt.at(-1)[0]}" cy="${pt.at(-1)[1]}" r="2.5" fill="#ff3d6e"/></svg>`};
-$('lifts').innerHTML=!LF.length?'<div class="empty">No lifts logged yet.</div>':LF.map(({k,ss,l})=>`<div class="lift"><div class="n" title="${k}">${k}</div><div class="v">${l.kg}<i> kg</i> × ${l.reps??'–'}</div><div class="d">${ld(l.date)} · ${l.n} set${l.n===1?'':'s'}</div><div class="e">e1RM ${Math.round(l.e)} kg</div>${ss.length>1?`<div class="sp">${spark(ss.map(x=>x.e))}</div>`:'<div class="f">First session · trend coming</div>'}</div>`).join('');
+$('lifts').innerHTML=!LF.length?'<div class="empty">No lifts logged yet.</div>':LF.map(({k,ss,l})=>`<div class="lift" tabindex="0" data-k="${k}"><div class="n" title="${k}">${k}</div><div class="v">${l.kg}<i> kg</i> × ${l.reps??'–'}</div><div class="d">${ld(l.date)} · ${l.n} set${l.n===1?'':'s'}</div><div class="e">e1RM ${Math.round(l.e)} kg</div>${ss.length>1?`<div class="sp">${spark(ss.map(x=>x.e))}</div>`:'<div class="f">First session · trend coming</div>'}</div>`).join('');
+window.__LF=LF.map(f=>({k:f.k,ses:gyms.filter(g=>g.sets.some(x=>x.k===f.k)).map(g=>({date:g.date,sets:g.sets.filter(x=>x.k===f.k)}))}));
+
 // PBs
 const best=(a,f)=>a.length?a.reduce((x,y)=>f(y)>f(x)?y:x):null,lr=best(runs,w=>w.km),fp=best(runs,w=>-w.min/w.km),lc=best(cyc,w=>w.km);
 const P=[lr&&['🏃','Longest run',lr.km+' km',lr.date],fp&&['⚡','Fastest pace',pace(fp)+' /km',fp.date],lc&&['🚴','Longest ride',lc.km+' km',lc.date],...exs.map(k=>{const g=best(gyms.filter(x=>x.lifts[k]),x=>x.lifts[k]);return g&&['🏋️',k,g.lifts[k]+' kg',g.date]})].filter(Boolean);
