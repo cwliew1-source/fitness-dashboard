@@ -2,8 +2,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <title>CW · Fitness</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://kdtfwfkzggjqeqtxunit.supabase.co" crossorigin><link rel="dns-prefetch" href="https://kdtfwfkzggjqeqtxunit.supabase.co"><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#0b0b10;--card:rgba(255,255,255,.045);--bd:rgba(255,255,255,.09);--tx:#f3f3f7;--mu:#8b8ca3;--g:linear-gradient(135deg,#ff7a18,#ff3d6e 55%,#c13cff)}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);
@@ -54,9 +54,10 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 .dots.shake{animation:sh .4s}@keyframes sh{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .pad{display:grid;grid-template-columns:repeat(3,72px);gap:16px;justify-content:center}
 .pad button{width:72px;height:72px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:var(--tx);font:600 1.6rem Inter,sans-serif;cursor:pointer;transition:.12s}
-.pad button:active{background:var(--g);transform:scale(.94)}.pad button[data-k=del],.pad button[data-k=fid]{background:transparent;border-color:transparent;font-size:1.3rem}
+.pad button:active{background:var(--g);transform:scale(.94)}.pad button[data-k=del]{background:transparent;border-color:transparent;font-size:1.3rem}
 .pad.off{opacity:.35;pointer-events:none}
 [hidden]{display:none!important}
+.spin{display:inline-block}.spinning .spin{animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}#refBtn:disabled{opacity:.6}
 </style><link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="logo-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -64,11 +65,11 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 <div id="auth" hidden><div class="card authcard">
  <div class="logo">⚡</div><h1>Fitness</h1><p>Enter your PIN</p>
  <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
- <div class="pad" id="pad"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" data-k="fid" id="padFid" title="Face ID">🔐</button><button type="button" data-k="0">0</button><button type="button" data-k="del">⌫</button></div>
+ <div class="pad" id="pad"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><span></span><button type="button" data-k="0">0</button><button type="button" data-k="del">⌫</button></div>
  <div class="msg" id="authMsg"></div>
 </div></div>
 <div id="app" hidden><div class="wrap">
-<header><div class="top"><span class="chip" id="who"></span><span><button class="btn sm ghost" id="fidBtn" hidden>🔐 Enable Face ID</button> <button class="btn sm ghost" id="outBtn">Sign out</button></span></div><h1>Keep <span>moving</span>, Chien-Wen.</h1><div class="sub" id="sub"></div></header>
+<header><div class="top"><span class="chip" id="who"></span><span><button class="btn sm ghost" id="refBtn" title="Refresh data"><span class="spin" id="refIc">↻</span> Refresh</button> <button class="btn sm ghost" id="outBtn">Sign out</button></span></div><h1>Keep <span>moving</span>, Chien-Wen.</h1><div class="sub" id="sub"></div></header>
 <div class="hero" style="margin-bottom:16px">
  <div class="card stat main"><small>This week</small><b><span data-c id="sw">0</span><span class="u">/ 3 sessions</span></b><div class="bar"><div id="swbar"></div></div></div>
  <div class="card stat"><small>🔥 Goal streak</small><b><span data-c id="st">0</span><span class="u">wks</span></b></div>
@@ -86,31 +87,39 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 </div>
 <footer>fitness.cwliew.com · private</footer>
 </div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
 <script>
+addEventListener('DOMContentLoaded',()=>{
 const SB_URL='https://kdtfwfkzggjqeqtxunit.supabase.co',SB_KEY='sb_publishable_FXJwxcfegK5ETsO_Db21Iw_UNBnCFFZ',SITE='https://fitness.cwliew.com';
-const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'cw-fitness-auth',experimental:{passkey:true}}});
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'cw-fitness-auth'}});
 const GOAL=3;let today=new Date(),start,shown=false;
 const TYPE=t=>/run/i.test(t)?'run':/ride|cycl/i.test(t)?'cycle':'gym';
 const msg=t=>document.getElementById('authMsg').textContent=t||'';
-const hasWebAuthn=!!window.PublicKeyCredential;
-async function loadData(){
- const since=new Date(Date.now()-56*864e5).toISOString();
- const {data:rows,error}=await sb.from('fitness_workouts').select('id,sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,weight_kg,is_top_set)').gte('start_date',since).order('start_date');
- if(error)throw error;
- today=new Date();start=new Date(today);start.setHours(0,0,0,0);start.setDate(start.getDate()-55);
- return rows.map(x=>{const type=TYPE(x.sport_type),w={date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60)};
+const CACHE='cw-fitness-cache-v2';
+const EX=n=>String(n||'').trim().toLowerCase().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+function hydrate(c){today=new Date();start=new Date(today);start.setHours(0,0,0,0);start.setDate(start.getDate()-55);
+ const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60)};
   if(x.distance_m)w.km=+(x.distance_m/1000).toFixed(1);
-  if(type==='gym'){w.lifts={};(x.fitness_sets||[]).forEach(s=>{const k=s.exercise.charAt(0).toUpperCase()+s.exercise.slice(1).toLowerCase();if(s.weight_kg&&(!w.lifts[k]||s.weight_kg>w.lifts[k]))w.lifts[k]=+s.weight_kg});}
-  return w})}
+  if(type==='gym'){w.lifts={};w.sets=(x.fitness_sets||[]).slice().sort((a,b)=>(a.set_no||0)-(b.set_no||0)).map(s=>({k:EX(s.exercise),reps:s.reps,kg:s.weight_kg==null?null:+s.weight_kg}));w.sets.forEach(s=>{if(s.kg&&(!w.lifts[s.k]||s.kg>w.lifts[s.k]))w.lifts[s.k]=s.kg});}
+  return w});return {W,S:c.summary}}
+async function fetchData(){
+ const since=new Date(Date.now()-56*864e5);since.setHours(0,0,0,0);
+ const [q1,q2]=await Promise.all([
+  sb.from('fitness_workouts').select('sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,set_no,reps,weight_kg)').gte('start_date',since.toISOString()).order('start_date'),
+  sb.from('fitness_summary').select('*').maybeSingle()]);
+ if(q1.error)throw q1.error;
+ const {data:{session:_s}}=await sb.auth.getSession();const c={email:_s?.user?.email,rows:q1.data,summary:q2.error?null:q2.data,ts:Date.now()};
+ try{localStorage.setItem(CACHE,JSON.stringify(c))}catch(e){}return c}
+function cached(){try{return JSON.parse(localStorage.getItem(CACHE))}catch(e){return null}}
+let fetching=null;
+function openApp(email){document.getElementById('auth').hidden=true;document.getElementById('app').hidden=false;if(email)document.getElementById('who').textContent=email}
 async function showApp(session){
+ openApp(session.user.email||'Signed in');
  if(shown)return;shown=true;
- document.getElementById('auth').hidden=true;document.getElementById('app').hidden=false;
- document.getElementById('who').textContent=session.user.email||'Signed in';
- if(hasWebAuthn&&sb.auth.passkey){try{const {data}=await sb.auth.passkey.list();document.getElementById('fidBtn').hidden=!!(data&&data.length);if(data&&data.length)localStorage.setItem('cw-fid','1')}catch(e){document.getElementById('fidBtn').hidden=false}}
- try{render(await loadData())}catch(e){console.error(e);document.getElementById('sub').textContent='Could not load data: '+(e.message||e)}}
+ const c=cached();if(c&&!window.__cacheRendered){try{render(hydrate(c))}catch(e){console.error(e)}}
+ fetching=fetchData().then(d=>render(hydrate(d))).catch(e=>{console.error(e);if(!c)document.getElementById('sub').textContent='Could not load data: '+(e.message||e)})}
 function showAuth(){shown=false;document.getElementById('app').hidden=true;document.getElementById('auth').hidden=false;
- if(!hasWebAuthn||!sb.auth.signInWithPasskey||!localStorage.getItem('cw-fid'))document.getElementById('padFid').style.visibility='hidden';checkLock()}
+ checkLock()}
 const PIN_URL=SB_URL+'/functions/v1/pin-login';let pin='',busy=false,lockTimer;
 const dots=document.getElementById('dots'),pad=document.getElementById('pad');
 const fmtT=d=>new Date(d).toLocaleString('en-AU',{weekday:'short',hour:'numeric',minute:'2-digit'});
@@ -124,25 +133,26 @@ async function submitPin(){busy=true;msg('');
    if(r.status===423)lockUntil(b.locked_until);else if(r.status===401)msg(b.attempts_left+' attempt'+(b.attempts_left===1?'':'s')+' left');else msg(b.error||'Something went wrong')}}
  catch(e){msg('Network error')}finally{pin='';drawDots();busy=false}}
 pad.onclick=async e=>{const k=e.target.closest('button')?.dataset.k;if(!k||busy)return;
- if(k==='fid'){const {error}=await sb.auth.signInWithPasskey();if(error)msg('Face ID failed or cancelled. Use your PIN.');return}
  if(k==='del')pin=pin.slice(0,-1);else if(pin.length<4)pin+=k;drawDots();if(pin.length===4)submitPin()};
 document.addEventListener('keydown',e=>{if(document.getElementById('auth').hidden)return;if(/^[0-9]$/.test(e.key))pad.querySelector(`[data-k="${e.key}"]`).click();else if(e.key==='Backspace')pad.querySelector('[data-k=del]').click()});
-document.getElementById('fidBtn').onclick=async()=>{const {error}=await sb.auth.registerPasskey();if(error)alert('Could not enable Face ID: '+error.message);else{localStorage.setItem('cw-fid','1');document.getElementById('fidBtn').hidden=true;alert('Face ID enabled. Next time, tap "Sign in with Face ID".')}};
-document.getElementById('outBtn').onclick=async()=>{await sb.auth.signOut();location.replace(location.pathname)};
+document.getElementById('refBtn').onclick=async()=>{const b=document.getElementById('refBtn');if(b.disabled)return;b.disabled=true;b.classList.add('spinning');
+ try{render(hydrate(await fetchData()))}catch(e){console.error(e);document.getElementById('sub').textContent='Refresh failed: '+(e.message||e)}finally{b.disabled=false;b.classList.remove('spinning')}};
+document.getElementById('outBtn').onclick=async()=>{localStorage.removeItem(CACHE);await sb.auth.signOut();location.replace(location.pathname)};
+if(localStorage.getItem('cw-fitness-auth')){const c=cached();if(c){openApp(c.email);try{render(hydrate(c));window.__cacheRendered=true}catch(e){console.error(e)}}}
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
-function render(W){
-if(!W.length){document.querySelector('#app .grid').innerHTML='<div class="card s6 empty">No workouts in the last 8 weeks yet. Log one and it will show up here.</div>';}
+function render({W,S}){
+if(typeof Chart==='undefined')return;
+['cMin','cMix','cRun','cLift'].forEach(id=>Chart.getChart(id)?.destroy());
 // ===== RENDER =====
 const $=id=>document.getElementById(id),sd=d=>d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}),fd=d=>d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
 const pace=w=>{const p=w.min/w.km;return Math.floor(p)+':'+String(Math.round(p%1*60)).padStart(2,'0')};
 const wi=d=>Math.floor((d-start)/(6048e5)),weeks=[...Array(8)].map((_,i)=>{const s=new Date(start);s.setDate(s.getDate()+i*7);return sd(s)});
 const runs=W.filter(w=>w.type==='run'&&w.km),gyms=W.filter(w=>w.type==='gym'&&w.lifts&&Object.keys(w.lifts).length),cyc=W.filter(w=>w.type==='cycle'&&w.km);
 const sw=W.filter(w=>wi(w.date)===7).length;let st=0;for(let i=7;i>=0;i--){if(W.filter(w=>wi(w.date)===i).length>=GOAL)st++;else break}
-$('sub').textContent='Last 8 weeks · '+W.length+' sessions · updated '+today.toLocaleDateString('en-AU');
+$('sub').textContent='Last 8 weeks · '+W.length+' sessions'+(S?' · '+S.total_sessions+' all-time · '+Math.round(S.total_run_km).toLocaleString('en-AU')+' km run since '+new Date(S.first_activity).getFullYear():'');
 Object.assign($('sw').dataset,{v:sw});Object.assign($('st').dataset,{v:st});$('km').dataset.v=runs.reduce((a,w)=>a+w.km,0).toFixed(0);$('hr').dataset.v=(W.reduce((a,w)=>a+w.min,0)/60).toFixed(0);
 $('swbar').style.width=Math.min(100,sw/GOAL*100)+'%';
-document.querySelectorAll('[data-c]').forEach(el=>{const v=+el.dataset.v,t0=performance.now();if(location.hash==="#static"){el.textContent=v;return}(function f(t){const k=Math.min(1,(t-t0)/1200);el.textContent=Math.round(v*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0)});
-if(!W.length)return;
+document.querySelectorAll('[data-c]').forEach(el=>{const v=+el.dataset.v,t0=performance.now();if(location.hash==="#static"||el.dataset.done){el.textContent=v;return}el.dataset.done=1;(function f(t){const k=Math.min(1,(t-t0)/1200);el.textContent=Math.round(v*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0)});
 // heatmap (columns=weeks, Mon-first)
 const off=(start.getDay()+6)%7;let h='';for(let i=0;i<off;i++)h+='<span style="visibility:hidden"></span>';
 for(let d=0;d<56;d++){const dt=new Date(start);dt.setDate(start.getDate()+d);const m=W.filter(w=>w.date.toDateString()===dt.toDateString()).reduce((a,w)=>a+w.min,0);
@@ -156,13 +166,22 @@ new Chart(cx,{type:'bar',data:{labels:weeks,datasets:[{label:'Run',data:by('run'
 new Chart($('cMix'),{type:'doughnut',data:{labels:['Run','Ride','Gym'],datasets:[{data:[runs.length,cyc.length,gyms.length],backgroundColor:['#ff5a3c','#3d8bff','#a83cff'],borderWidth:0}]},options:{animation:false,cutout:'72%',plugins:{legend:{position:'bottom'}}}});
 const rx=$('cRun').getContext('2d');
 new Chart(rx,{data:{labels:runs.map(w=>sd(w.date)),datasets:[{type:'line',label:'Distance (km)',data:runs.map(w=>w.km),fill:true,backgroundColor:grad(rx,'rgba(255,90,60,.45)','rgba(255,90,60,0)'),borderColor:'#ff5a3c',tension:.45,pointRadius:0,borderWidth:3},{type:'line',label:'Pace (min/km)',data:runs.map(w=>+(w.min/w.km).toFixed(2)),borderColor:'#ffd166',borderDash:[4,4],tension:.45,pointRadius:0,borderWidth:2,yAxisID:'y1'}]},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{beginAtZero:true,title:{display:true,text:'km'}},y1:{title:{display:true,text:'min/km'},position:'right',reverse:true,grid:{display:false}}}}});
-const lx=$('cLift').getContext('2d'),LC={Squat:['#ff3d6e','rgba(255,61,110,.3)'],Bench:['#00c6ff','rgba(0,198,255,.25)'],Deadlift:['#c13cff','rgba(193,60,255,.3)']};
-new Chart(lx,{type:'line',data:{labels:gyms.map(w=>sd(w.date)),datasets:Object.entries(LC).map(([k,[c,f]])=>({label:k,data:gyms.map(g=>g.lifts[k]??null),borderColor:c,backgroundColor:grad(lx,f,'rgba(0,0,0,0)'),fill:true,tension:.45,pointRadius:0,borderWidth:3}))},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}}}}});
+const lx=$('cLift').getContext('2d'),PAL=[['#ff3d6e','rgba(255,61,110,.3)'],['#00c6ff','rgba(0,198,255,.25)'],['#c13cff','rgba(193,60,255,.3)'],['#ffd166','rgba(255,209,102,.25)'],['#2ee6a6','rgba(46,230,166,.25)']];
+const exs=[...new Set(gyms.flatMap(g=>Object.keys(g.lifts)))].sort();const few=gyms.length<4;
+new Chart(lx,{type:'line',data:{labels:gyms.map(w=>sd(w.date)),datasets:exs.map((k,i)=>{const [c,f]=PAL[i%PAL.length];return{label:k,data:gyms.map(g=>g.lifts[k]??null),borderColor:c,backgroundColor:few?c:grad(lx,f,'rgba(0,0,0,0)'),fill:!few,spanGaps:true,tension:.45,pointRadius:few?6:2,pointHoverRadius:8,borderWidth:3}})},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{beginAtZero:false,suggestedMin:0,title:{display:true,text:'kg'}}},plugins:{legend:{display:exs.length>0}}}});
 // PBs
 const best=(a,f)=>a.length?a.reduce((x,y)=>f(y)>f(x)?y:x):null,lr=best(runs,w=>w.km),fp=best(runs,w=>-w.min/w.km),lc=best(cyc,w=>w.km);
-const P=[lr&&['🏃','Longest run',lr.km+' km',lr.date],fp&&['⚡','Fastest pace',pace(fp)+' /km',fp.date],lc&&['🚴','Longest ride',lc.km+' km',lc.date],...['Squat','Bench','Deadlift'].map(k=>{const g=best(gyms.filter(x=>x.lifts[k]),x=>x.lifts[k]);return g&&['🏋️',k,g.lifts[k]+' kg',g.date]})].filter(Boolean);
-$('pbs').innerHTML=P.map(([i,a,b,d])=>`<div class="pb"><div class="medal">${i}</div><small>${a}</small><b>${b}</b><small>${fd(d)}</small></div>`).join('');
+const P=[lr&&['🏃','Longest run',lr.km+' km',lr.date],fp&&['⚡','Fastest pace',pace(fp)+' /km',fp.date],lc&&['🚴','Longest ride',lc.km+' km',lc.date],...exs.map(k=>{const g=best(gyms.filter(x=>x.lifts[k]),x=>x.lifts[k]);return g&&['🏋️',k,g.lifts[k]+' kg',g.date]})].filter(Boolean);
+if(S){const pk=s=>Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');P.length=0;
+ if(S.longest_run)P.push(['🏃','Longest run',(+S.longest_run.km).toFixed(1)+' km',new Date(S.longest_run.date)]);
+ if(S.fastest_pace)P.push(['⚡','Fastest pace (3 km+)',pk(S.fastest_pace.sec_per_km)+' /km',new Date(S.fastest_pace.date)]);
+ if(S.longest_ride)P.push(['🚴','Longest ride',(+S.longest_ride.km).toFixed(1)+' km',new Date(S.longest_ride.date)]);
+ const L={};Object.entries(S.lift_pbs||{}).forEach(([k,v])=>{k=EX(k);if(!L[k]||+v.kg>L[k].kg)L[k]={kg:+v.kg,date:new Date(v.date)}});gyms.forEach(g=>Object.entries(g.lifts).forEach(([k,kg])=>{if(!L[k]||kg>L[k].kg)L[k]={kg,date:g.date}}));
+ Object.keys(L).sort().forEach(k=>P.push(['🏋️',k,L[k].kg+' kg',L[k].date]))}
+const fdy=d=>d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+$('pbs').innerHTML=P.map(([i,a,b,d])=>`<div class="pb"><div class="medal">${i}</div><small>${a}</small><b>${b}</b><small>${fdy(d)}</small></div>`).join('');
 const IC={run:'🏃',cycle:'🚴',gym:'🏋️'},NM={run:'Run',cycle:'Ride',gym:'Strength'};
-$('recent').innerHTML=W.slice(-8).reverse().map(w=>`<div class="row"><div class="ic ${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)} · ${w.type==='gym'?Object.entries(w.lifts||{}).map(([k,v])=>k+' '+v).join(' · ')+' kg':w.type==='run'?pace(w)+' /km':(w.km/(w.min/60)).toFixed(1)+' km/h'}</small></div><div class="m">${w.km?w.km+' km':w.min+' min'}<small>${w.km?w.min+' min':''}</small></div></div>`).join('');
+$('recent').innerHTML=!W.length?'<div class="empty">No workouts in the last 8 weeks yet.</div>':W.slice(-8).reverse().map(w=>`<div class="row"><div class="ic ${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)} · ${w.type==='gym'?((w.sets||[]).length?w.sets.map(x=>x.k+' '+(x.kg!=null?x.kg+' kg':'')+(x.reps?' × '+x.reps:'')).join(' · '):'No sets logged'):w.type==='run'?pace(w)+' /km':(w.km/(w.min/60)).toFixed(1)+' km/h'}</small></div><div class="m">${w.km?w.km+' km':w.min?w.min+' min':(w.sets||[]).length+' set'+((w.sets||[]).length===1?'':'s')}<small>${w.km&&w.min?w.min+' min':''}</small></div></div>`).join('');
 }
+});
 </script></body></html>
