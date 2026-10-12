@@ -49,14 +49,19 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .chip{font-size:.75rem;font-weight:600;color:var(--mu);border:1px solid var(--bd);padding:6px 12px;border-radius:99px}
 .empty{text-align:center;color:var(--mu);padding:28px}
+.dots{display:flex;gap:16px;justify-content:center;margin:0 0 28px}.dots i{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);transition:.15s}
+.dots i.on{background:var(--g);border-color:transparent;box-shadow:0 0 12px rgba(255,61,110,.7)}
+.dots.shake{animation:sh .4s}@keyframes sh{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:16px;justify-content:center}
+.pad button{width:72px;height:72px;border-radius:50%;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:var(--tx);font:600 1.6rem Inter,sans-serif;cursor:pointer;transition:.12s}
+.pad button:active{background:var(--g);transform:scale(.94)}.pad button[data-k=del],.pad button[data-k=fid]{background:transparent;border-color:transparent;font-size:1.3rem}
+.pad.off{opacity:.35;pointer-events:none}
 [hidden]{display:none!important}
 </style></head><body>
 <div id="auth" hidden><div class="card authcard">
- <div class="logo">⚡</div><h1>Fitness</h1><p>Private dashboard. Sign in to continue.</p>
- <button class="btn" id="pkBtn">🔐 Sign in with Face ID / Touch ID</button>
- <div class="or">or</div>
- <form id="emailForm"><input type="email" id="email" placeholder="you@example.com" autocomplete="email" required><button class="btn ghost" type="submit">Email me a sign-in link</button></form>
- <form id="otpForm" hidden><input id="otp" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" maxlength="10"><button class="btn" type="submit">Verify code</button></form>
+ <div class="logo">⚡</div><h1>Fitness</h1><p>Enter your PIN</p>
+ <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
+ <div class="pad" id="pad"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" data-k="fid" id="padFid" title="Face ID">🔐</button><button type="button" data-k="0">0</button><button type="button" data-k="del">⌫</button></div>
  <div class="msg" id="authMsg"></div>
 </div></div>
 <div id="app" hidden><div class="wrap">
@@ -81,7 +86,7 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
 <script>
 const SB_URL='https://kdtfwfkzggjqeqtxunit.supabase.co',SB_KEY='sb_publishable_FXJwxcfegK5ETsO_Db21Iw_UNBnCFFZ',SITE='https://fitness.cwliew.com';
-const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce',storageKey:'cw-fitness-auth',experimental:{passkey:true}}});
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'cw-fitness-auth',experimental:{passkey:true}}});
 const GOAL=3;let today=new Date(),start,shown=false;
 const TYPE=t=>/run/i.test(t)?'run':/ride|cycl/i.test(t)?'cycle':'gym';
 const msg=t=>document.getElementById('authMsg').textContent=t||'';
@@ -99,17 +104,27 @@ async function showApp(session){
  if(shown)return;shown=true;
  document.getElementById('auth').hidden=true;document.getElementById('app').hidden=false;
  document.getElementById('who').textContent=session.user.email||'Signed in';
- if(hasWebAuthn&&sb.auth.passkey){try{const {data}=await sb.auth.passkey.list();document.getElementById('fidBtn').hidden=!!(data&&data.length)}catch(e){document.getElementById('fidBtn').hidden=false}}
+ if(hasWebAuthn&&sb.auth.passkey){try{const {data}=await sb.auth.passkey.list();document.getElementById('fidBtn').hidden=!!(data&&data.length);if(data&&data.length)localStorage.setItem('cw-fid','1')}catch(e){document.getElementById('fidBtn').hidden=false}}
  try{render(await loadData())}catch(e){console.error(e);document.getElementById('sub').textContent='Could not load data: '+(e.message||e)}}
 function showAuth(){shown=false;document.getElementById('app').hidden=true;document.getElementById('auth').hidden=false;
- if(!hasWebAuthn||!sb.auth.signInWithPasskey)document.getElementById('pkBtn').hidden=true}
-document.getElementById('pkBtn').onclick=async()=>{msg('');const {error}=await sb.auth.signInWithPasskey();if(error)msg(error.message.includes('passkey_disabled')?'Face ID sign-in isn\'t switched on yet. Use the email link.':'Face ID sign-in failed or was cancelled. Use the email link.')};
-let pendingEmail='';
-document.getElementById('emailForm').onsubmit=async e=>{e.preventDefault();pendingEmail=document.getElementById('email').value.trim();msg('Sending…');
- const {error}=await sb.auth.signInWithOtp({email:pendingEmail,options:{emailRedirectTo:SITE,shouldCreateUser:true}});
- if(error)return msg(error.message);msg('Check your email: tap the link, or enter the code here.');document.getElementById('emailForm').hidden=true;document.getElementById('otpForm').hidden=false};
-document.getElementById('otpForm').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.verifyOtp({email:pendingEmail,token:document.getElementById('otp').value.trim(),type:'email'});if(error)msg(error.message)};
-document.getElementById('fidBtn').onclick=async()=>{const {error}=await sb.auth.registerPasskey();if(error)alert('Could not enable Face ID: '+error.message);else{document.getElementById('fidBtn').hidden=true;alert('Face ID enabled. Next time, tap "Sign in with Face ID".')}};
+ if(!hasWebAuthn||!sb.auth.signInWithPasskey||!localStorage.getItem('cw-fid'))document.getElementById('padFid').style.visibility='hidden';checkLock()}
+const PIN_URL=SB_URL+'/functions/v1/pin-login';let pin='',busy=false,lockTimer;
+const dots=document.getElementById('dots'),pad=document.getElementById('pad');
+const fmtT=d=>new Date(d).toLocaleString('en-AU',{weekday:'short',hour:'numeric',minute:'2-digit'});
+function drawDots(){[...dots.children].forEach((d,i)=>d.classList.toggle('on',i<pin.length))}
+function lockUntil(t){localStorage.setItem('cw-lock',t);pad.classList.add('off');msg('Locked until '+fmtT(t)+'. Ask Grok Bot to unlock early.');clearTimeout(lockTimer);lockTimer=setTimeout(checkLock,Math.max(1000,new Date(t)-Date.now()))}
+function checkLock(){const t=localStorage.getItem('cw-lock');if(t&&new Date(t)>new Date())lockUntil(t);else{localStorage.removeItem('cw-lock');pad.classList.remove('off');if(/Locked/.test(document.getElementById('authMsg').textContent))msg('')}}
+async function submitPin(){busy=true;msg('');
+ try{const r=await fetch(PIN_URL,{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY},body:JSON.stringify({pin})});const b=await r.json().catch(()=>({}));
+  if(r.ok){localStorage.removeItem('cw-lock');const {error}=await sb.auth.setSession({access_token:b.access_token,refresh_token:b.refresh_token});if(error)msg(error.message)}
+  else{dots.classList.add('shake');setTimeout(()=>dots.classList.remove('shake'),400);
+   if(r.status===423)lockUntil(b.locked_until);else if(r.status===401)msg(b.attempts_left+' attempt'+(b.attempts_left===1?'':'s')+' left');else msg(b.error||'Something went wrong')}}
+ catch(e){msg('Network error')}finally{pin='';drawDots();busy=false}}
+pad.onclick=async e=>{const k=e.target.closest('button')?.dataset.k;if(!k||busy)return;
+ if(k==='fid'){const {error}=await sb.auth.signInWithPasskey();if(error)msg('Face ID failed or cancelled. Use your PIN.');return}
+ if(k==='del')pin=pin.slice(0,-1);else if(pin.length<4)pin+=k;drawDots();if(pin.length===4)submitPin()};
+document.addEventListener('keydown',e=>{if(document.getElementById('auth').hidden)return;if(/^[0-9]$/.test(e.key))pad.querySelector(`[data-k="${e.key}"]`).click();else if(e.key==='Backspace')pad.querySelector('[data-k=del]').click()});
+document.getElementById('fidBtn').onclick=async()=>{const {error}=await sb.auth.registerPasskey();if(error)alert('Could not enable Face ID: '+error.message);else{localStorage.setItem('cw-fid','1');document.getElementById('fidBtn').hidden=true;alert('Face ID enabled. Next time, tap "Sign in with Face ID".')}};
 document.getElementById('outBtn').onclick=async()=>{await sb.auth.signOut();location.replace(location.pathname)};
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
 function render(W){
