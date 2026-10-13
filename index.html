@@ -78,6 +78,11 @@ input:focus{border-color:#ff3d6e;box-shadow:0 0 0 3px rgba(255,61,110,.2)}
 #dv h4{margin:16px 0 8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
 #dv .ses{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--bd);margin-bottom:8px}
 #dv .ses .sd{display:flex;justify-content:space-between;font-weight:700;font-size:.9rem;margin-bottom:6px}#dv .ses .sd span{color:#ffb38a;font-size:.75rem;font-weight:600}
+#dv .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}#dv .kv div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--bd);min-width:0}#dv .kv small{display:block;color:var(--mu);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em}#dv .kv b{font-size:1rem;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+#dv .sub2{color:var(--mu);font-size:.85rem;margin:-8px 0 14px}#dv .map{border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--bd);margin-bottom:14px;padding:8px}#dv .map svg{display:block;width:100%;height:180px}
+#dv table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}#dv th{color:var(--mu);font-weight:600;text-align:right;padding:6px 4px;border-bottom:1px solid var(--bd)}#dv td{text-align:right;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04)}#dv th:first-child,#dv td:first-child{text-align:left}
+#dv .lnk{display:block;text-align:center;margin-top:16px;padding:12px;border-radius:14px;background:#fc4c02;color:#fff;font-weight:700;text-decoration:none}
+.row.act{cursor:pointer;border-radius:12px;transition:.15s}.row.act:hover{background:rgba(255,122,24,.06)}
 #dv .st{display:grid;grid-template-columns:52px 1fr;font-size:.88rem;padding:3px 0;font-variant-numeric:tabular-nums}#dv .st small{color:var(--mu)}#dv .st.tp b{color:#ff7a18}
 body.noscroll{overflow:hidden}
 @media(min-width:760px){#dv{align-items:stretch;justify-content:flex-end}#dv .sh{width:460px;max-height:none;height:100%;border-radius:0;animation:sl .2s ease-out}}
@@ -121,17 +126,17 @@ const GOAL=3;let today=new Date(),start,shown=false;
 const TYPE=t=>{t=String(t||'');return /swim/i.test(t)?'swim':/row|canoe|kayak/i.test(t)?'row':/walk|hike/i.test(t)?'walk':/run/i.test(t)?'run':/ride|cycl/i.test(t)?'cycle':/weight|workout|crossfit|strength|gym/i.test(t)||!t?'gym':'other'};
 const CAT=[['run','Run','🏃','#ff7a18','#ff3d6e'],['cycle','Ride','🚴','#00c6ff','#7b5cff'],['swim','Swim','🏊','#00e0d0','#0077ff'],['row','Row','🚣','#2ee6a6','#0a9a6c'],['walk','Walk/Hike','🥾','#ffd166','#e08a00'],['gym','Strength','🏋️','#c13cff','#6a2cff'],['other','Other','⚡','#9aa0b8','#5a5f7a']];
 const msg=t=>document.getElementById('authMsg').textContent=t||'';
-const CACHE='cw-fitness-cache-v2';
+const CACHE='cw-fitness-cache-v3';
 const EX=n=>String(n||'').trim().toLowerCase().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 function hydrate(c){today=new Date();start=new Date(today);start.setHours(0,0,0,0);start.setDate(start.getDate()-55);
- const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sec:x.moving_time_s||x.elapsed_time_s||0};
+ const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={id:x.id,date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sec:x.moving_time_s||x.elapsed_time_s||0};
   if(x.distance_m)w.m=+x.distance_m;if(x.distance_m)w.km=+(x.distance_m/1000).toFixed(1);
   if(type==='gym'){w.lifts={};w.sets=(x.fitness_sets||[]).slice().sort((a,b)=>(a.set_no||0)-(b.set_no||0)).map(s=>({k:EX(s.exercise),reps:s.reps,kg:s.weight_kg==null?null:+s.weight_kg}));w.sets.forEach(s=>{if(s.kg&&(!w.lifts[s.k]||s.kg>w.lifts[s.k]))w.lifts[s.k]=s.kg});}
   return w});return {W,S:c.summary}}
 async function fetchData(){
  const since=new Date(Date.now()-56*864e5);since.setHours(0,0,0,0);
  const [q1,q2]=await Promise.all([
-  sb.from('fitness_workouts').select('sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,set_no,reps,weight_kg)').gte('start_date',since.toISOString()).order('start_date'),
+  sb.from('fitness_workouts').select('id,sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,set_no,reps,weight_kg)').gte('start_date',since.toISOString()).order('start_date'),
   sb.from('fitness_summary').select('*').maybeSingle()]);
  if(q1.error)throw q1.error;
  const {data:{session:_s}}=await sb.auth.getSession();const c={email:_s?.user?.email,rows:q1.data,summary:q2.error?null:q2.data,ts:Date.now()};
@@ -189,6 +194,36 @@ DV.addEventListener('click',e=>{if(e.target===DV)closeDetail()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 addEventListener('popstate',()=>closeDetail(true));
 window.__openDetail=openDetail;
+function decPoly(str){let i=0,lat=0,lng=0,out=[];while(i<str.length){for(const k of[0,1]){let b,sh=0,r=0;do{b=str.charCodeAt(i++)-63;r|=(b&31)<<sh;sh+=5}while(b>=32);const d=r&1?~(r>>1):r>>1;if(k)lng+=d;else lat+=d}out.push([lat/1e5,lng/1e5])}return out}
+function routeSvg(pl){const p=decPoly(pl);if(p.length<2)return'';const k=Math.cos(p[0][0]*Math.PI/180),xs=p.map(q=>q[1]*k),ys=p.map(q=>-q[0]),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0||1e-6,h=Math.max(...ys)-y0||1e-6,sc=Math.min(380/w,170/h),ox=(400-w*sc)/2,oy=(180-h*sc)/2,P=p.map((_,i)=>[(xs[i]-x0)*sc+ox,(ys[i]-y0)*sc+oy]);
+ return `<div class="map"><svg viewBox="0 0 400 180"><polyline points="${P.map(q=>q.map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#ff7a18" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${P[0][0]}" cy="${P[0][1]}" r="5" fill="#2ee6a6"/><circle cx="${P.at(-1)[0]}" cy="${P.at(-1)[1]}" r="5" fill="#ff3d6e"/></svg></div>`}
+const hms=s=>{s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`:`${m}:${String(x).padStart(2,'0')}`};
+const PACE=(t,m,s)=>!m||!s?null:t==='swim'?hms(s/(m/100))+' /100 m':t==='row'?hms(s/(m/500))+' /500 m':t==='run'||t==='walk'?hms(s/(m/1000))+' /km':(m/1000/(s/3600)).toFixed(1)+' km/h';
+async function openAct(id){if(!id)return;const CN=Object.fromEntries(CAT.map(c=>[c[0],c]));
+ const box=document.getElementById('dvs');box.innerHTML='<div class="hd"><h3>Loading…</h3><button class="x" id="dvx" aria-label="Close">✕</button></div>';DV.hidden=false;document.body.classList.add('noscroll');document.getElementById('dvx').onclick=()=>closeDetail();if(!dvOpen)history.pushState({dv:'act'},'');dvOpen=true;
+ const {data:a,error}=await sb.from('fitness_workouts').select('id,source,strava_id,name,sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,total_elevation_gain_m,average_heartrate,max_heartrate,summary_polyline,notes,raw,fitness_sets(exercise,set_no,reps,weight_kg)').eq('id',id).maybeSingle();
+ if(!dvOpen)return;if(error||!a){box.querySelector('h3').textContent='Could not load activity';return}
+ const t=TYPE(a.sport_type),c=CN[t],r=a.raw||{},m=+a.distance_m||0,mv=a.moving_time_s,el=a.elapsed_time_s;
+ const dt=new Date(a.start_date).toLocaleString('en-AU',{timeZone:'Australia/Adelaide',weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
+ const dist=!m?null:t==='swim'?Math.round(m).toLocaleString('en-AU')+' m':(m/1000).toFixed(2)+' km';
+ const cal=r.calories??(r.kilojoules?Math.round(r.kilojoules/4.184):null);
+ const KV=[['Distance',dist],['Moving time',mv?hms(mv):null],['Elapsed time',el&&el!==mv?hms(el):null],[t==='ride'||t==='cycle'?'Avg speed':'Pace',PACE(t,m,mv)],['Avg HR',a.average_heartrate?Math.round(a.average_heartrate)+' bpm':null],['Max HR',a.max_heartrate?Math.round(a.max_heartrate)+' bpm':null],['Elevation',+a.total_elevation_gain_m?Math.round(a.total_elevation_gain_m)+' m':null],['Calories',cal?Math.round(cal)+' kcal':null],['Cadence',r.average_cadence?Math.round(r.average_cadence)+(t==='swim'?' str/min':t==='row'?' spm':''):null],['Effort',r.suffer_score?Math.round(r.suffer_score):null]].filter(x=>x[1]!=null);
+ let h=`<div class="hd"><div class="ic c-${t}">${c[2]}</div><h3>${(a.name||c[1]).replace(/</g,'&lt;')}</h3><button class="x" id="dvx" aria-label="Close">✕</button></div><p class="sub2">${c[1]} · ${dt}${r.device_name?' · '+String(r.device_name).replace(/</g,'&lt;'):''}</p>`;
+ if(KV.length)h+=`<div class="kv">${KV.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>`;
+ const pl=a.summary_polyline||r.map?.summary_polyline;if(pl)h+=routeSvg(pl);
+ const laps=Array.isArray(r.laps)?r.laps:null,sp=Array.isArray(r.splits_metric)?r.splits_metric:null;
+ if(laps&&laps.length>1)h+=`<h4>Laps</h4><table><tr><th>Lap</th><th>Dist</th><th>Time</th><th>Pace</th><th>HR</th></tr>${laps.map((l,i)=>`<tr><td>${i+1}</td><td>${t==='swim'?Math.round(l.distance)+' m':(l.distance/1000).toFixed(2)+' km'}</td><td>${hms(l.moving_time)}</td><td>${PACE(t,l.distance,l.moving_time)||''}</td><td>${l.average_heartrate?Math.round(l.average_heartrate):''}</td></tr>`).join('')}</table>`;
+ else if(sp&&sp.length)h+=`<h4>Splits</h4><table><tr><th>km</th><th>Time</th><th>Pace</th><th>Elev</th><th>HR</th></tr>${sp.map((l,i)=>`<tr><td>${i+1}</td><td>${hms(l.moving_time)}</td><td>${PACE(t,l.distance,l.moving_time)||''}</td><td>${l.elevation_difference!=null?Math.round(l.elevation_difference)+' m':''}</td><td>${l.average_heartrate?Math.round(l.average_heartrate):''}</td></tr>`).join('')}</table>`;
+ const sets=(a.fitness_sets||[]).slice().sort((x,y)=>(x.set_no||0)-(y.set_no||0));
+ if(sets.length){const G={};sets.forEach(x=>{const k=EX(x.exercise);(G[k]=G[k]||[]).push(x)});h+='<h4>Exercises</h4>'+Object.entries(G).map(([k,ss])=>`<div class="ses"><div class="sd">${k}<span>${ss.length} set${ss.length===1?'':'s'}</span></div>${ss.map((x,i)=>`<div class="st"><small>Set ${i+1}</small><b>${x.weight_kg!=null?+x.weight_kg+' kg':'BW'} × ${x.reps??'–'}</b></div>`).join('')}</div>`).join('')}
+ else if(t==='gym'&&!a.strava_id)h+='<p class="nt">No sets logged.</p>';
+ if(a.notes)h+=`<h4>Notes</h4><p class="sub2" style="margin:0">${String(a.notes).replace(/</g,'&lt;')}</p>`;
+ if(a.strava_id)h+=`<a class="lnk" href="https://www.strava.com/activities/${a.strava_id}" target="_blank" rel="noopener noreferrer">View on Strava ↗</a>`;
+ box.innerHTML=h;document.getElementById('dvx').onclick=()=>closeDetail()}
+document.getElementById('recent').addEventListener('click',e=>{const r=e.target.closest('.act');if(r)openAct(+r.dataset.id)});
+document.getElementById('recent').addEventListener('keydown',e=>{const r=e.target.closest('.act');if(r&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openAct(+r.dataset.id)}});
+window.__openAct=openAct;
+
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
 function render({W,S}){
 if(typeof Chart==='undefined')return;
@@ -241,7 +276,7 @@ const IC=Object.fromEntries(CAT.map(c=>[c[0],c[2]])),NM=Object.fromEntries(CAT.m
 const mmss=x=>Math.floor(x/60)+':'+String(Math.round(x%60)).padStart(2,'0');
 const DET=w=>w.type==='gym'?((w.sets||[]).length?w.sets.map(x=>x.k+' '+(x.kg!=null?x.kg+' kg':'')+(x.reps?' × '+x.reps:'')).join(' · '):'No sets logged'):!w.km||!w.sec?'':w.type==='run'||w.type==='walk'?pace(w)+' /km':w.type==='swim'?mmss(w.sec/((w.m||w.km*1000)/100))+' /100 m':w.type==='row'?mmss(w.sec/((w.m||w.km*1000)/500))+' /500 m':(w.km/(w.sec/3600)).toFixed(1)+' km/h';
 const DST=w=>w.type==='swim'&&w.km?Math.round(w.m||w.km*1000).toLocaleString('en-AU')+' m':w.km?w.km+' km':'';
-$('recent').innerHTML=!W.length?'<div class="empty">No workouts in the last 8 weeks yet.</div>':W.slice(-8).reverse().map(w=>`<div class="row"><div class="ic c-${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)}${DET(w)?' · '+DET(w):''}</small></div><div class="m">${DST(w)?DST(w):w.min?w.min+' min':(w.sets||[]).length+' set'+((w.sets||[]).length===1?'':'s')}<small>${w.km&&w.min?w.min+' min':''}</small></div></div>`).join('');
+$('recent').innerHTML=!W.length?'<div class="empty">No workouts in the last 8 weeks yet.</div>':W.slice(-8).reverse().map(w=>`<div class="row act" tabindex="0" data-id="${w.id}"><div class="ic c-${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)}${DET(w)?' · '+DET(w):''}</small></div><div class="m">${DST(w)?DST(w):w.min?w.min+' min':(w.sets||[]).length+' set'+((w.sets||[]).length===1?'':'s')}<small>${w.km&&w.min?w.min+' min':''}</small></div></div>`).join('');
 }
 });
 </script></body></html>
