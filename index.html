@@ -31,7 +31,7 @@ h1 span{background:var(--g);-webkit-background-clip:text;color:transparent}.sub{
 .pb b{font-size:1.3rem;font-weight:800;display:block}.pb small{color:var(--mu);font-size:.75rem}
 .list .row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}.list .row:last-child{border:0}
 .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem;flex:none}
-.run{background:linear-gradient(135deg,#ff7a18,#ff3d6e)}.cycle{background:linear-gradient(135deg,#00c6ff,#7b5cff)}.gym{background:linear-gradient(135deg,#c13cff,#6a2cff)}
+.c-run{background:linear-gradient(135deg,#ff7a18,#ff3d6e)}.c-cycle{background:linear-gradient(135deg,#00c6ff,#7b5cff)}.c-gym{background:linear-gradient(135deg,#c13cff,#6a2cff)}.c-swim{background:linear-gradient(135deg,#00e0d0,#0077ff)}.c-row{background:linear-gradient(135deg,#2ee6a6,#0a9a6c)}.c-walk{background:linear-gradient(135deg,#ffd166,#e08a00)}.c-other{background:linear-gradient(135deg,#7d8199,#454a66)}
 .row .t{flex:1;min-width:0}.row .t b{display:block;font-weight:600}.row .t small{color:var(--mu);font-size:.8rem}.row .m{font-weight:800;text-align:right}.row .m small{display:block;color:var(--mu);font-weight:500;font-size:.75rem}
 @media(min-width:760px){.hero{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(6,1fr)}.s6{grid-column:span 6}.s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}.pbs{grid-template-columns:repeat(3,1fr)}}
 footer{color:var(--mu);font-size:.75rem;text-align:center;padding:24px}
@@ -118,13 +118,14 @@ addEventListener('DOMContentLoaded',()=>{
 const SB_URL='https://kdtfwfkzggjqeqtxunit.supabase.co',SB_KEY='sb_publishable_FXJwxcfegK5ETsO_Db21Iw_UNBnCFFZ',SITE='https://fitness.cwliew.com';
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'cw-fitness-auth'}});
 const GOAL=3;let today=new Date(),start,shown=false;
-const TYPE=t=>/run/i.test(t)?'run':/ride|cycl/i.test(t)?'cycle':'gym';
+const TYPE=t=>{t=String(t||'');return /swim/i.test(t)?'swim':/row|canoe|kayak/i.test(t)?'row':/walk|hike/i.test(t)?'walk':/run/i.test(t)?'run':/ride|cycl/i.test(t)?'cycle':/weight|workout|crossfit|strength|gym/i.test(t)||!t?'gym':'other'};
+const CAT=[['run','Run','🏃','#ff7a18','#ff3d6e'],['cycle','Ride','🚴','#00c6ff','#7b5cff'],['swim','Swim','🏊','#00e0d0','#0077ff'],['row','Row','🚣','#2ee6a6','#0a9a6c'],['walk','Walk/Hike','🥾','#ffd166','#e08a00'],['gym','Strength','🏋️','#c13cff','#6a2cff'],['other','Other','⚡','#9aa0b8','#5a5f7a']];
 const msg=t=>document.getElementById('authMsg').textContent=t||'';
 const CACHE='cw-fitness-cache-v2';
 const EX=n=>String(n||'').trim().toLowerCase().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 function hydrate(c){today=new Date();start=new Date(today);start.setHours(0,0,0,0);start.setDate(start.getDate()-55);
- const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60)};
-  if(x.distance_m)w.km=+(x.distance_m/1000).toFixed(1);
+ const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sec:x.moving_time_s||x.elapsed_time_s||0};
+  if(x.distance_m)w.m=+x.distance_m;if(x.distance_m)w.km=+(x.distance_m/1000).toFixed(1);
   if(type==='gym'){w.lifts={};w.sets=(x.fitness_sets||[]).slice().sort((a,b)=>(a.set_no||0)-(b.set_no||0)).map(s=>({k:EX(s.exercise),reps:s.reps,kg:s.weight_kg==null?null:+s.weight_kg}));w.sets.forEach(s=>{if(s.kg&&(!w.lifts[s.k]||s.kg>w.lifts[s.k]))w.lifts[s.k]=s.kg});}
   return w});return {W,S:c.summary}}
 async function fetchData(){
@@ -211,8 +212,9 @@ Chart.defaults.color='#8b8ca3';Chart.defaults.font.family='Inter';Chart.defaults
 const grad=(c,a,b)=>{const g=c.createLinearGradient(0,0,0,c.canvas.height);g.addColorStop(0,a);g.addColorStop(1,b);return g};
 const by=t=>weeks.map((_,i)=>W.filter(w=>w.type===t&&wi(w.date)===i).reduce((a,w)=>a+w.min,0));
 const cx=$('cMin').getContext('2d'),bo={borderRadius:8,borderSkipped:false,maxBarThickness:34};
-new Chart(cx,{type:'bar',data:{labels:weeks,datasets:[{label:'Run',data:by('run'),backgroundColor:grad(cx,'#ff7a18','#ff3d6e'),...bo},{label:'Ride',data:by('cycle'),backgroundColor:grad(cx,'#00c6ff','#7b5cff'),...bo},{label:'Gym',data:by('gym'),backgroundColor:grad(cx,'#c13cff','#6a2cff'),...bo}]},options:{animation:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true}}}});
-new Chart($('cMix'),{type:'doughnut',data:{labels:['Run','Ride','Gym'],datasets:[{data:[runs.length,cyc.length,gyms.length],backgroundColor:['#ff5a3c','#3d8bff','#a83cff'],borderWidth:0}]},options:{animation:false,cutout:'72%',plugins:{legend:{position:'bottom'}}}});
+const CU=CAT.filter(c=>W.some(w=>w.type===c[0]));
+new Chart(cx,{type:'bar',data:{labels:weeks,datasets:CU.map(([k,l,,a,b])=>({label:l,data:by(k),backgroundColor:grad(cx,a,b),...bo}))},options:{animation:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true}}}});
+new Chart($('cMix'),{type:'doughnut',data:{labels:CU.map(c=>c[1]),datasets:[{data:CU.map(c=>W.filter(w=>w.type===c[0]).length),backgroundColor:CU.map(c=>c[3]),borderWidth:0}]},options:{animation:false,cutout:'72%',plugins:{legend:{position:'bottom'}}}});
 const rx=$('cRun').getContext('2d');
 new Chart(rx,{data:{labels:runs.map(w=>sd(w.date)),datasets:[{type:'line',label:'Distance (km)',data:runs.map(w=>w.km),fill:true,backgroundColor:grad(rx,'rgba(255,90,60,.45)','rgba(255,90,60,0)'),borderColor:'#ff5a3c',tension:.45,pointRadius:0,borderWidth:3},{type:'line',label:'Pace (min/km)',data:runs.map(w=>+(w.min/w.km).toFixed(2)),borderColor:'#ffd166',borderDash:[4,4],tension:.45,pointRadius:0,borderWidth:2,yAxisID:'y1'}]},options:{animation:false,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:6}},y:{beginAtZero:true,title:{display:true,text:'km'}},y1:{title:{display:true,text:'min/km'},position:'right',reverse:true,grid:{display:false}}}}});
 const PAL=[['#ff3d6e','rgba(255,61,110,.3)'],['#00c6ff','rgba(0,198,255,.25)'],['#c13cff','rgba(193,60,255,.3)'],['#ffd166','rgba(255,209,102,.25)'],['#2ee6a6','rgba(46,230,166,.25)']];
@@ -235,8 +237,11 @@ if(S){const pk=s=>Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
  Object.keys(L).sort().forEach(k=>P.push(['🏋️',k,L[k].kg+' kg',L[k].date]))}
 const fdy=d=>d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
 $('pbs').innerHTML=P.map(([i,a,b,d])=>`<div class="pb"><div class="medal">${i}</div><small>${a}</small><b>${b}</b><small>${fdy(d)}</small></div>`).join('');
-const IC={run:'🏃',cycle:'🚴',gym:'🏋️'},NM={run:'Run',cycle:'Ride',gym:'Strength'};
-$('recent').innerHTML=!W.length?'<div class="empty">No workouts in the last 8 weeks yet.</div>':W.slice(-8).reverse().map(w=>`<div class="row"><div class="ic ${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)} · ${w.type==='gym'?((w.sets||[]).length?w.sets.map(x=>x.k+' '+(x.kg!=null?x.kg+' kg':'')+(x.reps?' × '+x.reps:'')).join(' · '):'No sets logged'):w.type==='run'?pace(w)+' /km':(w.km/(w.min/60)).toFixed(1)+' km/h'}</small></div><div class="m">${w.km?w.km+' km':w.min?w.min+' min':(w.sets||[]).length+' set'+((w.sets||[]).length===1?'':'s')}<small>${w.km&&w.min?w.min+' min':''}</small></div></div>`).join('');
+const IC=Object.fromEntries(CAT.map(c=>[c[0],c[2]])),NM=Object.fromEntries(CAT.map(c=>[c[0],c[1]]));
+const mmss=x=>Math.floor(x/60)+':'+String(Math.round(x%60)).padStart(2,'0');
+const DET=w=>w.type==='gym'?((w.sets||[]).length?w.sets.map(x=>x.k+' '+(x.kg!=null?x.kg+' kg':'')+(x.reps?' × '+x.reps:'')).join(' · '):'No sets logged'):!w.km||!w.sec?'':w.type==='run'||w.type==='walk'?pace(w)+' /km':w.type==='swim'?mmss(w.sec/((w.m||w.km*1000)/100))+' /100 m':w.type==='row'?mmss(w.sec/((w.m||w.km*1000)/500))+' /500 m':(w.km/(w.sec/3600)).toFixed(1)+' km/h';
+const DST=w=>w.type==='swim'&&w.km?Math.round(w.m||w.km*1000).toLocaleString('en-AU')+' m':w.km?w.km+' km':'';
+$('recent').innerHTML=!W.length?'<div class="empty">No workouts in the last 8 weeks yet.</div>':W.slice(-8).reverse().map(w=>`<div class="row"><div class="ic c-${w.type}">${IC[w.type]}</div><div class="t"><b>${NM[w.type]}</b><small>${fd(w.date)}${DET(w)?' · '+DET(w):''}</small></div><div class="m">${DST(w)?DST(w):w.min?w.min+' min':(w.sets||[]).length+' set'+((w.sets||[]).length===1?'':'s')}<small>${w.km&&w.min?w.min+' min':''}</small></div></div>`).join('');
 }
 });
 </script></body></html>
