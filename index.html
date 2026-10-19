@@ -270,7 +270,7 @@ function renderPlan(W){const days=planWeek(W);PW=days;const t=days.find(x=>x.tod
  document.getElementById('plan').innerHTML=`<div class="ph"><h2>This week · plan</h2><small>🏋️ ${done}/4 · 🏊 ${Math.min(sdone,4)}/4</small></div>
  <div class="wk">${days.map(x=>`<button type="button" class="dy ${x.today?'today':x.past?'past':''}" data-i="${x.i}" aria-label="${DFN[x.i]} plan"><span class="dn">${DN[x.i]}</span><span class="dd">${x.dnum}</span>${chip(x)}</button>`).join('')}</div>
  <h4 style="margin:16px 0 0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)">Today · ${DFN[t.i]}</h4><div class="tdy">${planBlocks(t)}</div>
- <details class="pn"><summary>Plan notes · hip stress fracture return</summary><ul>${PLAN.notes.map(n=>`<li>${n}</li>`).join('')}</ul></details>`}
+`}
 function openDay(i){const x=(PW||[])[i];if(!x)return;
  document.getElementById('dvs').innerHTML=`<div class="hd"><h3>${DFN[x.i]} · ${x.dnum} ${x.mon}${x.today?' · Today':''}</h3><button class="x" id="dvx" aria-label="Close">✕</button></div><div class="tdy" style="grid-template-columns:1fr;margin-top:0">${planBlocks(x)}</div>${x.gym.length||x.swim.length?`<h4>Logged</h4>${[...x.gym,...x.swim].map(w=>`<div class="ses act-open" data-id="${w.id}" style="cursor:pointer"><div class="sd">${w.type==='gym'?'🏋️ Strength':'🏊 Swim'}<span>${w.type==='swim'?swmFull([w]):(w.sets||[]).length+' sets'}${w.min?' · '+w.min+' min':''}</span></div></div>`).join('')}`:''}`;
  DV.hidden=false;document.body.classList.add('noscroll');document.getElementById('dvx').onclick=()=>closeDetail();if(!dvOpen)history.pushState({dv:'day'},'');dvOpen=true;
