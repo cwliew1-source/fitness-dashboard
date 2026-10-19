@@ -122,6 +122,20 @@ details.pn ul{margin:0;padding:0 14px 12px 32px;font-size:.84rem;line-height:1.5
 .ci.td{border-color:#ff7a18;background:rgba(255,122,24,.08)}.ci .cd{font-size:.75rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}.ci.td .cd{color:#ffb38a}
 .ci .ct{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ci.dn .ct{color:#c9f7e6}.ci .cs{font-size:.66rem;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
 @media(min-width:760px){.cmp{grid-template-columns:auto minmax(0,1fr);padding:16px 20px;gap:28px}.ring{width:118px;height:118px}.ring b{font-size:2.1rem}.bt{height:60px;max-width:34px}.bv{font-size:.68rem}.bl{font-size:.62rem}.chk{grid-template-columns:1fr 1fr}}
+.ci{grid-template-columns:auto 46px minmax(0,1fr) auto auto!important;gap:8px!important;padding:8px 8px 8px 10px!important}.pb2 .pt{flex-wrap:wrap;row-gap:8px}.pb2 .pt>span:first-child{flex:1 1 150px}.ci .cd em{display:block;font-style:normal;font-size:.55rem;color:#ffb38a;letter-spacing:.04em}
+.mvb{appearance:none;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--mu);font:600 .72rem Inter,sans-serif;border-radius:99px;padding:0 10px;min-height:30px;min-width:34px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}.mvb:active{background:rgba(255,122,24,.15);color:#ffb38a}
+.ci .mvb span{display:none}.pa{display:inline-flex;gap:6px;align-items:center;flex:none}
+.pb2.gone{opacity:.55;border-left-style:dashed;padding:10px 14px}.pb2.gone .pt{margin-bottom:2px}.mvn{color:#ffb38a!important;margin:-2px 0 6px}
+.pc.gone{opacity:.45;border:1px dashed rgba(255,255,255,.3);background:none}.pc.mvd{outline:1px dashed #ffb38a;outline-offset:1px}
+#mvo{position:fixed;inset:0;z-index:70;background:rgba(5,6,15,.6);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.mvs{width:100%;max-width:440px;background:#161936;border:1px solid var(--bd);border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.6)}
+.mvh b{display:block;font-size:1.05rem;font-weight:800}.mvh small{color:var(--mu);font-size:.78rem}
+.mvd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:14px 0 10px}
+.mvd button{appearance:none;font:inherit;color:var(--tx);background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-height:52px}
+.mvd button span{font-size:.72rem;font-weight:700;text-transform:uppercase}.mvd button small{font-size:.95rem;font-weight:800}
+.mvd button.tdd{border-color:#ff7a18}.mvd button.orig{box-shadow:inset 0 -3px 0 rgba(255,179,138,.6)}.mvd button:disabled{opacity:.3;cursor:default}.mvd button:not(:disabled):active{background:var(--g)}
+.mva{appearance:none;display:block;width:100%;margin-top:8px;padding:13px;border-radius:14px;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:var(--tx);font:600 .92rem Inter,sans-serif;cursor:pointer;text-align:center}.mva.cx{background:none;color:var(--mu)}
+@media(min-width:760px){#mvo{align-items:center}.mvs{border-radius:20px}.ci[draggable]{cursor:grab}.dy.dragover{border-color:#ff7a18}}
 </style><link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="logo-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -175,7 +189,7 @@ async function fetchData(){
  const [q1,q2,q3]=await Promise.all([
   sb.from('fitness_workouts').select('id,sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,set_no,reps,weight_kg)').gte('start_date',since.toISOString()).order('start_date'),
   sb.from('fitness_summary').select('*').maybeSingle(),
-  sb.from('fitness_plan_checks').select('week_start,day,item,done,auto').gte('week_start',ck0)]);
+  sb.from('fitness_plan_checks').select('week_start,day,item,done,auto,moved_to').gte('week_start',ck0)]);
  if(q1.error)throw q1.error;
  const {data:{session:_s}}=await sb.auth.getSession();const c={email:_s?.user?.email,rows:q1.data,summary:q2.error?null:q2.data,checks:q3.error?[]:q3.data,ts:Date.now()};
  try{localStorage.setItem(CACHE,JSON.stringify(c))}catch(e){}return c}
@@ -275,58 +289,86 @@ const adk=d=>new Date(d).toLocaleDateString('en-CA',{timeZone:'Australia/Adelaid
 const addD=(k,n)=>{const [y,m,d]=k.split('-').map(Number),t=new Date(Date.UTC(y,m-1,d+n));return t.toISOString().slice(0,10)};
 const mondayOf=k=>{const [y,m,d]=k.split('-').map(Number);return addD(k,-((new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7))};
 // Planned items: one per weights/swim per day; weekend long swim is ONE item ('wknd') satisfied by Sat or Sun.
-const ITEMS=(()=>{const a=[];PLAN.days.forEach((p,i)=>{if(p.w)a.push({id:DK[i]+'-weights',day:DK[i],item:'weights',di:[i],t:p.w.t});if(p.s&&!p.s.wknd)a.push({id:DK[i]+'-swim',day:DK[i],item:'swim',di:[i],t:p.s.t})});
- const we=PLAN.days.map((p,i)=>p.s?.wknd?i:-1).filter(i=>i>=0);if(we.length)a.push({id:'wknd-swim',day:'wknd',item:'swim',di:we,t:PLAN.days[we[0]].s.t});return a})();
-let PW=null,PR=[],PCHK={},PSTATE={},PMSG='';
+const ITEMS=(()=>{const a=[];PLAN.days.forEach((p,i)=>{if(p.w)a.push({id:DK[i]+'-weights',day:DK[i],item:'weights',di:[i],src:i,t:p.w.t});if(p.s&&!p.s.wknd)a.push({id:DK[i]+'-swim',day:DK[i],item:'swim',di:[i],src:i,t:p.s.t})});
+ const we=PLAN.days.map((p,i)=>p.s?.wknd?i:-1).filter(i=>i>=0);if(we.length)a.push({id:'wknd-swim',day:'wknd',item:'swim',di:we,src:we[0],t:PLAN.days[we[0]].s.t});return a})();
+let PW=null,PR=[],PCHK={},PMSG='';
 const ck=(ws,day,item)=>ws+'|'+day+'|'+item;
 function setPlanData(rows,checks){PR=(rows||[]).map(x=>({id:x.id,type:TYPE(x.sport_type),k:adk(x.start_date),m:+x.distance_m||0,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sets:x.fitness_sets||[]}));
  PCHK={};(checks||[]).forEach(c=>{PCHK[ck(c.week_start,c.day,c.item)]=c})}
-// state of an item in week ws: manual row (auto=false) wins; else auto from logged data.
-function itemState(ws,it){const keys=it.di.map(i=>addD(ws,i)),hits=PR.filter(w=>keys.includes(w.k)&&(it.item==='weights'?w.type==='gym':w.type==='swim')),auto=hits.length>0,man=PCHK[ck(ws,it.day,it.item)];
- const manual=man&&!man.auto?man:null;return{done:manual?manual.done:auto,auto,manual:!!manual,hits}}
+const rowOf=(ws,it)=>PCHK[ck(ws,it.day,it.item)];
+// Effective day indexes for an item in week ws (moved_to overrides the planned day(s)).
+const effDi=(ws,it)=>{const r=rowOf(ws,it);return r?.moved_to?[DK.indexOf(r.moved_to)]:it.di};
+// Row semantics: auto=false -> manual done wins; auto=true -> done follows logged data. moved_to applies either way.
+function itemState(ws,it){const di=effDi(ws,it),keys=di.map(i=>addD(ws,i)),hits=PR.filter(w=>keys.includes(w.k)&&(it.item==='weights'?w.type==='gym':w.type==='swim')),auto=hits.length>0,r=rowOf(ws,it),manual=r&&!r.auto?r:null;
+ return{done:manual?manual.done:auto,auto,manual:!!manual,hits,di,moved:r?.moved_to||null}}
 function weekPct(ws){const st=ITEMS.map(it=>itemState(ws,it)),d=st.filter(s=>s.done).length;return{d,n:ITEMS.length,p:ITEMS.length?Math.round(d/ITEMS.length*100):0}}
 function planWeek(){const tk=adk(new Date()),ws=mondayOf(tk);
- const days=[...Array(7)].map((_,i)=>{const key=addD(ws,i),ws2=PR.filter(w=>w.k===key),[y,m,d]=key.split('-').map(Number);
-  return{i,key,ws,dnum:d,mon:new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-AU',{month:'short',timeZone:'UTC'}),today:key===tk,past:key<tk,p:PLAN.days[i],gym:ws2.filter(w=>w.type==='gym'),swim:ws2.filter(w=>w.type==='swim')}});
- return days}
+ return [...Array(7)].map((_,i)=>{const key=addD(ws,i),ws2=PR.filter(w=>w.k===key),[y,m,d]=key.split('-').map(Number);
+  return{i,key,ws,dnum:d,mon:new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-AU',{month:'short',timeZone:'UTC'}),today:key===tk,past:key<tk,p:PLAN.days[i],gym:ws2.filter(w=>w.type==='gym'),swim:ws2.filter(w=>w.type==='swim')}})}
 const swm=a=>{const m=a.reduce((t,w)=>t+(w.m||0),0);return m?(m>=1000?(m/1000).toFixed(1).replace(/\.0$/,'')+'k':Math.round(m)):''};
 const swmFull=a=>{const m=Math.round(a.reduce((t,w)=>t+(w.m||0),0));return m?m.toLocaleString('en-AU')+' m':''};
-const itemFor=(i,kind)=>ITEMS.find(it=>it.item===kind&&it.di.includes(i));
+const onDay=(ws,i)=>ITEMS.filter(it=>effDi(ws,it).includes(i));
+const awayFrom=(ws,i)=>ITEMS.filter(it=>it.di.includes(i)&&rowOf(ws,it)?.moved_to&&!effDi(ws,it).includes(i));
+const detailOf=it=>it.item==='weights'?PLAN.days[it.src].w:PLAN.days[it.src].s;
+const dayLbl=(ws,it)=>{const d=effDi(ws,it);return d.length>1?'Sat/Sun':DN[d[0]]};
 function tickBtn(ws,it,big){const s=itemState(ws,it);return `<button type="button" class="tick ${s.done?'on':''} ${big?'big':''}" data-ws="${ws}" data-day="${it.day}" data-item="${it.item}" aria-pressed="${s.done}" aria-label="${it.t} ${s.done?'done':'not done'}"><span class="bx">${s.done?'✓':''}</span>${big?`<span class="tl">${s.done?(s.manual?'Done':'Done · auto'):s.auto&&s.manual?'Not done (manual)':'Tick when done'}</span>`:''}</button>`}
-function planBlocks(x){const p=x.p;if(p.rest)return'<div class="pb2 rst">😴 Rest day. Recover, walk if it feels good, and let the hip settle.</div>';let h='';
- if(p.w){const it=itemFor(x.i,'weights');h+=`<div class="pb2"><div class="pt"><span>🏋️ ${p.w.t}</span>${tickBtn(x.ws,it,true)}</div><ul>${p.w.x.map(e=>`<li>${e}</li>`).join('')}</ul>${x.gym.length?`<div class="cv">Logged: ${x.gym.map(g=>(g.sets.length||0)+' sets').join(', ')}</div>`:''}</div>`}
- if(p.s){const it=itemFor(x.i,'swim'),st=itemState(x.ws,it);h+=`<div class="pb2 sw"><div class="pt"><span>🏊 ${p.s.t}</span>${tickBtn(x.ws,it,true)}</div><ul>${p.s.x.map(e=>`<li>${e}</li>`).join('')}</ul>${st.hits.length?`<div class="cv">Logged: ${swmFull(st.hits)||st.hits.length+' swim'}</div>`:''}${p.s.wknd?'<div class="cv">One long swim, Saturday or Sunday. Either day ticks it.</div>':''}</div>`}
+const moveBtn=(ws,it)=>`<button type="button" class="mvb" data-ws="${ws}" data-day="${it.day}" data-item="${it.item}" aria-label="Move or reset ${it.t}">⇄<span> Move</span></button>`;
+function planBlocks(x){const ws=x.ws,its=onDay(ws,x.i),away=awayFrom(ws,x.i);let h='';
+ if(!its.length&&!away.length&&x.p.rest)return'<div class="pb2 rst">😴 Rest day. Recover, walk if it feels good, and let the hip settle.</div>';
+ its.forEach(it=>{const d=detailOf(it),st=itemState(ws,it),sw=it.item==='swim',mv=st.moved&&!it.di.includes(x.i);
+  h+=`<div class="pb2 ${sw?'sw':''}"><div class="pt"><span>${sw?'🏊':'🏋️'} ${d.t}</span><span class="pa">${moveBtn(ws,it)}${tickBtn(ws,it,true)}</span></div>${mv?`<div class="cv mvn">Moved from ${it.day==='wknd'?'the weekend':DFN[it.src]}</div>`:''}<ul>${d.x.map(e=>`<li>${e}</li>`).join('')}</ul>${st.hits.length?`<div class="cv">Logged: ${sw?(swmFull(st.hits)||st.hits.length+' swim'):st.hits.map(g=>(g.sets.length||0)+' sets').join(', ')}</div>`:''}${sw&&d.wknd&&!st.moved?'<div class="cv">One long swim, Saturday or Sunday. Either day ticks it.</div>':''}</div>`});
+ if(!its.length&&x.p.rest)h='<div class="pb2 rst">😴 Rest day.</div>'+h;
+ else if(!its.length)h+='<div class="pb2 rst">Nothing planned now: everything was moved.</div>';
+ away.forEach(it=>{h+=`<div class="pb2 gone"><div class="pt"><span>${it.item==='swim'?'🏊':'🏋️'} ${detailOf(it).t}</span><span class="pa">${moveBtn(ws,it)}</span></div><div class="cv">Moved to ${DFN[effDi(ws,it)[0]]}</div></div>`});
  return h}
-function renderPlan(){const days=planWeek();PW=days;const t=days.find(x=>x.today)||days[0],ws=days[0].ws,cur=weekPct(ws);
+function renderPlan(){const days=planWeek();PW=days;const t=days.find(x=>x.today)||days[0],ws=days[0].ws,cur=weekPct(ws),tk=adk(new Date());
  const hist=[...Array(8)].map((_,k)=>{const w=addD(ws,-7*(7-k));return{w,...weekPct(w)}});
- const chip=x=>{const p=x.p;if(p.rest)return'<span class="pc rest">Rest</span>';let h='';if(p.w){const s=itemState(ws,itemFor(x.i,'weights'));h+=`<span class="pc w ${s.done?'ok':''}">🏋️</span>`}if(p.s){const s=itemState(ws,itemFor(x.i,'swim'));h+=`<span class="pc s ${s.done?'ok':''}">🏊${x.swim.length?`<span class="km">${swm(x.swim)}</span>`:''}</span>`}return h};
- const dueN=ITEMS.filter(it=>addD(ws,it.di[0])<=adk(new Date())).length;
- const lbl=it=>it.day==='wknd'?'Sat/Sun':DN[DK.indexOf(it.day)];
- const isToday=it=>it.di.includes(t.i);
+ const chip=x=>{const its=onDay(ws,x.i),away=awayFrom(ws,x.i);if(!its.length&&!away.length)return'<span class="pc rest">Rest</span>';
+  return its.map(it=>{const s=itemState(ws,it),sw=it.item==='swim',mv=s.moved&&!it.di.includes(x.i),dd=sw?x.swim:[];return `<span class="pc ${sw?'s':'w'} ${s.done?'ok':''} ${mv?'mvd':''}">${sw?'🏊':'🏋️'}${sw&&dd.length?`<span class="km">${swm(dd)}</span>`:''}</span>`}).join('')+away.map(it=>`<span class="pc gone" title="Moved to ${DN[effDi(ws,it)[0]]}">${it.item==='swim'?'🏊':'🏋️'}<span class="km">→${DN[effDi(ws,it)[0]].slice(0,2)}</span></span>`).join('')};
+ const dueN=ITEMS.filter(it=>addD(ws,effDi(ws,it)[0])<=tk).length;
  document.getElementById('plan').innerHTML=`<div class="ph"><h2>This week · plan</h2><small>${cur.d}/${cur.n} done</small></div>
  <div class="cmp"><div class="ring" style="--p:${cur.p}"><b>${cur.p}<i>%</i></b><small>this week</small></div>
   <div class="hb"><div class="hbt">Last 8 weeks</div><div class="bars">${hist.map((h,k)=>`<div class="bc ${k===7?'cur':''}" title="Week of ${h.w}: ${h.p}%"><span class="bv">${h.p}</span><div class="bt"><div style="height:${Math.max(4,h.p)}%"></div></div><span class="bl">${k===7?'Now':new Date(h.w+'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'numeric',timeZone:'UTC'})}</span></div>`).join('')}</div>
   <div class="hbt" style="margin-top:6px">${cur.d} of ${dueN} due so far · ${cur.n} planned</div></div></div>
  <div class="wk">${days.map(x=>`<button type="button" class="dy ${x.today?'today':x.past?'past':''}" data-i="${x.i}" aria-label="${DFN[x.i]} plan"><span class="dn">${DN[x.i]}</span><span class="dd">${x.dnum}</span>${chip(x)}</button>`).join('')}</div>
  <h4 class="plh">Today · ${DFN[t.i]}</h4><div class="tdy">${planBlocks(t)}</div>
- <h4 class="plh">Week checklist</h4><div class="chk">${ITEMS.map(it=>{const s=itemState(ws,it),past=addD(ws,it.di[it.di.length-1])<adk(new Date());return `<div class="ci ${isToday(it)?'td':''} ${s.done?'dn':''}">${tickBtn(ws,it)}<span class="cd">${lbl(it)}</span><span class="ct">${it.item==='weights'?'🏋️':'🏊'} ${it.t}</span><span class="cs">${s.done?(s.manual?'':'auto'):past?'missed':''}</span></div>`}).join('')}</div>
+ <h4 class="plh">Week checklist</h4><div class="chk">${ITEMS.slice().sort((a,b)=>effDi(ws,a)[0]-effDi(ws,b)[0]).map(it=>{const s=itemState(ws,it),di=effDi(ws,it),past=addD(ws,di[di.length-1])<tk;return `<div class="ci ${di.includes(t.i)?'td':''} ${s.done?'dn':''}" draggable="true">${tickBtn(ws,it)}<span class="cd">${dayLbl(ws,it)}${s.moved?'<em>moved</em>':''}</span><span class="ct">${it.item==='weights'?'🏋️':'🏊'} ${it.t}</span><span class="cs">${s.done?(s.manual?'':'auto'):past?'missed':''}</span>${moveBtn(ws,it)}</div>`}).join('')}</div>
  ${PMSG?`<div class="msg" style="margin-top:8px">${PMSG}</div>`:''}`}
-async function toggleCheck(b){const ws=b.dataset.ws,day=b.dataset.day,item=b.dataset.item,it=ITEMS.find(i=>i.day===day&&i.item===item);if(!it)return;
- const s=itemState(ws,it),k=ck(ws,day,item),prev=PCHK[k],row={week_start:ws,day,item,done:!s.done,auto:false};
- PCHK[k]={...row};PMSG='';rerenderPlan();
+// Persist the full row for an item (manual done / auto flag / moved_to). Optimistic with revert.
+async function saveRow(ws,it,patch){const k=ck(ws,it.day,it.item),prev=PCHK[k],s=itemState(ws,it);
+ const row={week_start:ws,day:it.day,item:it.item,done:prev&&!prev.auto?prev.done:s.done,auto:prev?!!prev.auto:true,moved_to:prev?.moved_to??null,...patch};
+ const del=row.auto&&!row.moved_to;if(del)delete PCHK[k];else PCHK[k]=row;PMSG='';rerenderPlan();
  try{const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Not signed in');
-  const {error}=await sb.from('fitness_plan_checks').upsert({...row,user_id:session.user.id,updated_at:new Date().toISOString()},{onConflict:'user_id,week_start,day,item'});if(error)throw error;
+  const q=sb.from('fitness_plan_checks');const {error}=del?await q.delete().match({user_id:session.user.id,week_start:ws,day:it.day,item:it.item}):await q.upsert({...row,user_id:session.user.id,updated_at:new Date().toISOString()},{onConflict:'user_id,week_start,day,item'});if(error)throw error;
   try{const c=cached();if(c){c.checks=Object.values(PCHK);localStorage.setItem(CACHE,JSON.stringify(c))}}catch(e){}}
- catch(e){if(prev)PCHK[k]=prev;else delete PCHK[k];PMSG='Could not save tick: '+(e.message||e);rerenderPlan()}}
+ catch(e){if(prev)PCHK[k]=prev;else delete PCHK[k];PMSG='Could not save: '+(e.message||e);rerenderPlan()}}
+const itemOf=b=>ITEMS.find(i=>i.day===b.dataset.day&&i.item===b.dataset.item);
+function toggleCheck(b){const it=itemOf(b);if(!it)return;const s=itemState(b.dataset.ws,it);saveRow(b.dataset.ws,it,{done:!s.done,auto:false})}
+// Move / reset menu (own overlay so it works on top of the day sheet).
+function openMove(b){const ws=b.dataset.ws,it=itemOf(b);if(!it)return;const s=itemState(ws,it),cur=effDi(ws,it),r=rowOf(ws,it),tk=adk(new Date());
+ let m=document.getElementById('mvo');if(!m){m=document.createElement('div');m.id='mvo';document.body.appendChild(m);m.addEventListener('click',e=>{if(e.target===m)closeMove()})}
+ m.innerHTML=`<div class="mvs" role="dialog" aria-label="Move ${it.t}"><div class="mvh"><b>${it.item==='swim'?'🏊':'🏋️'} ${it.t}</b><small>${s.moved?'Moved to '+DFN[cur[0]]:'Planned '+(it.day==='wknd'?'Sat or Sun':DFN[it.src])} · this week only</small></div>
+ <div class="mvd">${DN.map((n,i)=>{const dis=cur.length===1&&cur[0]===i,dt=addD(ws,i);return `<button type="button" data-to="${DK[i]}" ${dis?'disabled':''} class="${dt===tk?'tdd':''} ${it.di.includes(i)?'orig':''}"><span>${n}</span><small>${+dt.slice(8)}</small></button>`}).join('')}</div>
+ ${s.moved?'<button type="button" class="mva" data-act="back">↩ Move back to '+(it.day==='wknd'?'the weekend':DFN[it.src])+'</button>':''}${s.manual?'<button type="button" class="mva" data-act="auto">⟲ Reset tick to auto'+(s.auto?' (data says done)':' (no data yet)')+'</button>':''}
+ <button type="button" class="mva cx" data-act="close">Cancel</button></div>`;
+ m.hidden=false;m.querySelectorAll('[data-to]').forEach(x=>x.onclick=()=>{closeMove();const to=x.dataset.to;saveRow(ws,it,{moved_to:it.di.length===1&&it.di[0]===DK.indexOf(to)?null:to})});
+ m.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{closeMove();if(x.dataset.act==='back')saveRow(ws,it,{moved_to:null});else if(x.dataset.act==='auto')saveRow(ws,it,{auto:true,done:false})})}
+function closeMove(){const m=document.getElementById('mvo');if(m)m.hidden=true}
 function rerenderPlan(){try{renderPlan()}catch(e){console.error(e)}if(dvOpen&&openDayIdx!=null)openDay(openDayIdx,true)}
 let openDayIdx=null;
 function openDay(i,refresh){const x=(PW||[])[i];if(!x)return;openDayIdx=i;
  document.getElementById('dvs').innerHTML=`<div class="hd"><h3>${DFN[x.i]} · ${x.dnum} ${x.mon}${x.today?' · Today':''}</h3><button class="x" id="dvx" aria-label="Close">✕</button></div><div class="tdy" style="grid-template-columns:1fr;margin-top:0">${planBlocks(x)}</div>${x.gym.length||x.swim.length?`<h4>Logged</h4>${[...x.gym,...x.swim].map(w=>`<div class="ses act-open" data-id="${w.id}" style="cursor:pointer"><div class="sd">${w.type==='gym'?'🏋️ Strength':'🏊 Swim'}<span>${w.type==='swim'?swmFull([w]):(w.sets||[]).length+' sets'}${w.min?' · '+w.min+' min':''}</span></div></div>`).join('')}`:''}`;
  document.getElementById('dvx').onclick=()=>closeDetail();document.querySelectorAll('#dvs .act-open').forEach(el=>el.onclick=()=>{openDayIdx=null;openAct(+el.dataset.id)});
  if(refresh)return;DV.hidden=false;document.body.classList.add('noscroll');if(!dvOpen)history.pushState({dv:'day'},'');dvOpen=true}
-document.getElementById('plan').addEventListener('click',e=>{const tb=e.target.closest('.tick');if(tb){e.stopPropagation();toggleCheck(tb);return}const b=e.target.closest('.dy');if(b)openDay(+b.dataset.i)});
-document.getElementById('dvs').addEventListener('click',e=>{const tb=e.target.closest('.tick');if(tb)toggleCheck(tb)});
-window.__openDay=openDay;
+const planClick=e=>{const mb=e.target.closest('.mvb');if(mb){e.stopPropagation();openMove(mb);return true}const tb=e.target.closest('.tick');if(tb){e.stopPropagation();toggleCheck(tb);return true}return false};
+document.getElementById('plan').addEventListener('click',e=>{if(planClick(e))return;const b=e.target.closest('.dy');if(b)openDay(+b.dataset.i)});
+document.getElementById('dvs').addEventListener('click',planClick);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=document.getElementById('mvo');if(m&&!m.hidden){e.stopImmediatePropagation();closeMove()}}},true);
+// Desktop drag-and-drop: drag a checklist row's Move handle onto a day in the strip.
+document.getElementById('plan').addEventListener('dragstart',e=>{const r=e.target.closest('.ci');if(!r)return;const b=r.querySelector('.mvb');e.dataTransfer.setData('text/plain',b.dataset.ws+'|'+b.dataset.day+'|'+b.dataset.item)});
+document.getElementById('plan').addEventListener('dragover',e=>{if(e.target.closest('.dy'))e.preventDefault()});
+document.getElementById('plan').addEventListener('drop',e=>{const d=e.target.closest('.dy');if(!d)return;e.preventDefault();const [ws,day,item]=(e.dataTransfer.getData('text/plain')||'').split('|'),it=ITEMS.find(i=>i.day===day&&i.item===item);if(!it)return;const i=+d.dataset.i;saveRow(ws,it,{moved_to:it.di.length===1&&it.di[0]===i?null:DK[i]})});
+window.__openDay=openDay;window.__openMove=openMove;
 
 
 if(localStorage.getItem('cw-fitness-auth')){const c=cached();if(c){openApp(c.email);try{render(hydrate(c));window.__cacheRendered=true}catch(e){console.error(e)}}}
