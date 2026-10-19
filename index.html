@@ -105,6 +105,23 @@ body.noscroll{overflow:hidden}
 details.pn{margin-top:12px;border-radius:14px;border:1px solid var(--bd);background:rgba(255,255,255,.02)}details.pn summary{cursor:pointer;padding:11px 14px;font-size:.8rem;font-weight:700;color:var(--mu);list-style:none}details.pn summary::-webkit-details-marker{display:none}details.pn summary:before{content:"▸ ";color:#ff7a18}details.pn[open] summary:before{content:"▾ "}
 details.pn ul{margin:0;padding:0 14px 12px 32px;font-size:.84rem;line-height:1.55;color:#d9dbea}details.pn li::marker{color:#ff7a18}
 @media(min-width:760px){.wk{gap:10px}.dy{padding:12px 6px 14px;gap:8px}.dy .dd{font-size:1.25rem}.pc{max-width:64px;height:26px;font-size:.9rem}.pc .km{font-size:.66rem}.tdy{grid-template-columns:1fr 1fr}}
+.cmp{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;margin-bottom:14px;padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--bd)}
+.ring{--p:0;width:96px;height:96px;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(closest-side,#141629 78%,transparent 79% 100%),conic-gradient(#ff7a18 0,#ff3d6e calc(var(--p)*1%),rgba(255,255,255,.08) 0)}
+.ring b{font-size:1.7rem;font-weight:900;line-height:1;letter-spacing:-.03em}.ring b i{font-style:normal;font-size:.85rem;color:var(--mu);margin-left:1px}.ring small{color:var(--mu);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.hb{min-width:0}.hbt{color:var(--mu);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.bars{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;align-items:end}.bc{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.bt{width:100%;max-width:22px;height:46px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:flex-end;overflow:hidden}.bt div{width:100%;background:linear-gradient(180deg,#ff7a18,#ff3d6e);border-radius:6px 6px 0 0;opacity:.55}
+.bc.cur .bt div{opacity:1;box-shadow:0 0 10px rgba(255,122,24,.6)}.bv{font-size:.58rem;color:var(--mu);font-variant-numeric:tabular-nums}.bc.cur .bv{color:#ffb38a;font-weight:700}.bl{font-size:.55rem;color:var(--mu);white-space:nowrap}
+.plh{margin:16px 0 0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.tick{appearance:none;border:0;background:none;color:var(--tx);font:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:0;flex:none;-webkit-tap-highlight-color:transparent}
+.tick .bx{width:26px;height:26px;border-radius:8px;border:2px solid rgba(255,255,255,.28);display:grid;place-items:center;font-size:.9rem;font-weight:900;color:#05261a;transition:.12s}
+.tick.on .bx{background:linear-gradient(135deg,#2ee6a6,#16b884);border-color:transparent;box-shadow:0 0 12px rgba(46,230,166,.45)}.tick:active .bx{transform:scale(.9)}
+.tick.big{padding:4px 10px 4px 4px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--bd)}.tick.big .tl{font-size:.72rem;font-weight:700;color:var(--mu);white-space:nowrap}.tick.big.on .tl{color:#2ee6a6}
+.chk{margin-top:8px;display:grid;gap:6px;grid-template-columns:1fr}
+.ci{display:grid;grid-template-columns:auto 52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--bd);min-height:44px}
+.ci.td{border-color:#ff7a18;background:rgba(255,122,24,.08)}.ci .cd{font-size:.75rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}.ci.td .cd{color:#ffb38a}
+.ci .ct{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ci.dn .ct{color:#c9f7e6}.ci .cs{font-size:.66rem;color:var(--mu);text-transform:uppercase;letter-spacing:.05em}
+@media(min-width:760px){.cmp{grid-template-columns:auto minmax(0,1fr);padding:16px 20px;gap:28px}.ring{width:118px;height:118px}.ring b{font-size:2.1rem}.bt{height:60px;max-width:34px}.bv{font-size:.68rem}.bl{font-size:.62rem}.chk{grid-template-columns:1fr 1fr}}
 </style><link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="logo-512.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -151,14 +168,16 @@ function hydrate(c){today=new Date();start=new Date(today);start.setHours(0,0,0,
  const W=c.rows.filter(x=>new Date(x.start_date)>=start).map(x=>{const type=TYPE(x.sport_type),w={id:x.id,date:new Date(x.start_date),type,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sec:x.moving_time_s||x.elapsed_time_s||0};
   if(x.distance_m)w.m=+x.distance_m;if(x.distance_m)w.km=+(x.distance_m/1000).toFixed(1);
   if(type==='gym'){w.lifts={};w.sets=(x.fitness_sets||[]).slice().sort((a,b)=>(a.set_no||0)-(b.set_no||0)).map(s=>({k:EX(s.exercise),reps:s.reps,kg:s.weight_kg==null?null:+s.weight_kg}));w.sets.forEach(s=>{if(s.kg&&(!w.lifts[s.k]||s.kg>w.lifts[s.k]))w.lifts[s.k]=s.kg});}
-  return w});return {W,S:c.summary}}
+  return w});setPlanData(c.rows,c.checks);return {W,S:c.summary}}
 async function fetchData(){
- const since=new Date(Date.now()-56*864e5);since.setHours(0,0,0,0);
- const [q1,q2]=await Promise.all([
+ const since=new Date(Date.now()-63*864e5);since.setHours(0,0,0,0);
+ const ck0=new Date(Date.now()-64*864e5).toISOString().slice(0,10);
+ const [q1,q2,q3]=await Promise.all([
   sb.from('fitness_workouts').select('id,sport_type,start_date,moving_time_s,elapsed_time_s,distance_m,fitness_sets(exercise,set_no,reps,weight_kg)').gte('start_date',since.toISOString()).order('start_date'),
-  sb.from('fitness_summary').select('*').maybeSingle()]);
+  sb.from('fitness_summary').select('*').maybeSingle(),
+  sb.from('fitness_plan_checks').select('week_start,day,item,done,auto').gte('week_start',ck0)]);
  if(q1.error)throw q1.error;
- const {data:{session:_s}}=await sb.auth.getSession();const c={email:_s?.user?.email,rows:q1.data,summary:q2.error?null:q2.data,ts:Date.now()};
+ const {data:{session:_s}}=await sb.auth.getSession();const c={email:_s?.user?.email,rows:q1.data,summary:q2.error?null:q2.data,checks:q3.error?[]:q3.data,ts:Date.now()};
  try{localStorage.setItem(CACHE,JSON.stringify(c))}catch(e){}return c}
 function cached(){try{return JSON.parse(localStorage.getItem(CACHE))}catch(e){return null}}
 let fetching=null;
@@ -251,38 +270,69 @@ const PLAN={
   {w:{t:'Shoulders, chest & core',x:['Seated shoulder press (Mega Mass or dumbbells)','Lateral raises','Rear delt fly (machine or cable)','Incline press or pec deck','Core: cable crunch, plus Pallof press or plank if the hip tolerates them (avoid hanging leg raises and sit-ups)']},s:{t:'Threshold',x:['8 × 200 m at a comfortably hard effort, 90 s rest']}},
   {s:{t:'Long easy swim',x:['1,500–2,000 m easy'],wknd:true}},
   {s:{t:'Long easy swim',x:['1,500–2,000 m easy'],wknd:true}}]};
-const DN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],DFN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],DFN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],DK=['mon','tue','wed','thu','fri','sat','sun'];
 const adk=d=>new Date(d).toLocaleDateString('en-CA',{timeZone:'Australia/Adelaide'});
-let PW=null;
-function planWeek(W){const tk=adk(new Date()),[y,m,d]=tk.split('-').map(Number),base=new Date(Date.UTC(y,m-1,d)),dow=(base.getUTCDay()+6)%7;
- const days=[...Array(7)].map((_,i)=>{const dt=new Date(base);dt.setUTCDate(base.getUTCDate()-dow+i);const key=dt.toISOString().slice(0,10),ws=W.filter(w=>adk(w.date)===key);
-  return{i,key,dnum:dt.getUTCDate(),mon:dt.toLocaleDateString('en-AU',{month:'short',timeZone:'UTC'}),today:key===tk,past:key<tk,p:PLAN.days[i],gym:ws.filter(w=>w.type==='gym'),swim:ws.filter(w=>w.type==='swim')}});
- const wkSwim=days[5].swim.length||days[6].swim.length;days.forEach(x=>x.wkSwim=wkSwim);return days}
-const swm=a=>{const m=a.reduce((t,w)=>t+(w.m||(w.km||0)*1000),0);return m?(m>=1000?(m/1000).toFixed(1).replace(/\.0$/,'')+'k':Math.round(m)):''};
-const swmFull=a=>{const m=Math.round(a.reduce((t,w)=>t+(w.m||(w.km||0)*1000),0));return m?m.toLocaleString('en-AU')+' m':''};
+const addD=(k,n)=>{const [y,m,d]=k.split('-').map(Number),t=new Date(Date.UTC(y,m-1,d+n));return t.toISOString().slice(0,10)};
+const mondayOf=k=>{const [y,m,d]=k.split('-').map(Number);return addD(k,-((new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7))};
+// Planned items: one per weights/swim per day; weekend long swim is ONE item ('wknd') satisfied by Sat or Sun.
+const ITEMS=(()=>{const a=[];PLAN.days.forEach((p,i)=>{if(p.w)a.push({id:DK[i]+'-weights',day:DK[i],item:'weights',di:[i],t:p.w.t});if(p.s&&!p.s.wknd)a.push({id:DK[i]+'-swim',day:DK[i],item:'swim',di:[i],t:p.s.t})});
+ const we=PLAN.days.map((p,i)=>p.s?.wknd?i:-1).filter(i=>i>=0);if(we.length)a.push({id:'wknd-swim',day:'wknd',item:'swim',di:we,t:PLAN.days[we[0]].s.t});return a})();
+let PW=null,PR=[],PCHK={},PSTATE={},PMSG='';
+const ck=(ws,day,item)=>ws+'|'+day+'|'+item;
+function setPlanData(rows,checks){PR=(rows||[]).map(x=>({id:x.id,type:TYPE(x.sport_type),k:adk(x.start_date),m:+x.distance_m||0,min:Math.round((x.moving_time_s||x.elapsed_time_s||0)/60),sets:x.fitness_sets||[]}));
+ PCHK={};(checks||[]).forEach(c=>{PCHK[ck(c.week_start,c.day,c.item)]=c})}
+// state of an item in week ws: manual row (auto=false) wins; else auto from logged data.
+function itemState(ws,it){const keys=it.di.map(i=>addD(ws,i)),hits=PR.filter(w=>keys.includes(w.k)&&(it.item==='weights'?w.type==='gym':w.type==='swim')),auto=hits.length>0,man=PCHK[ck(ws,it.day,it.item)];
+ const manual=man&&!man.auto?man:null;return{done:manual?manual.done:auto,auto,manual:!!manual,hits}}
+function weekPct(ws){const st=ITEMS.map(it=>itemState(ws,it)),d=st.filter(s=>s.done).length;return{d,n:ITEMS.length,p:ITEMS.length?Math.round(d/ITEMS.length*100):0}}
+function planWeek(){const tk=adk(new Date()),ws=mondayOf(tk);
+ const days=[...Array(7)].map((_,i)=>{const key=addD(ws,i),ws2=PR.filter(w=>w.k===key),[y,m,d]=key.split('-').map(Number);
+  return{i,key,ws,dnum:d,mon:new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-AU',{month:'short',timeZone:'UTC'}),today:key===tk,past:key<tk,p:PLAN.days[i],gym:ws2.filter(w=>w.type==='gym'),swim:ws2.filter(w=>w.type==='swim')}});
+ return days}
+const swm=a=>{const m=a.reduce((t,w)=>t+(w.m||0),0);return m?(m>=1000?(m/1000).toFixed(1).replace(/\.0$/,'')+'k':Math.round(m)):''};
+const swmFull=a=>{const m=Math.round(a.reduce((t,w)=>t+(w.m||0),0));return m?m.toLocaleString('en-AU')+' m':''};
+const itemFor=(i,kind)=>ITEMS.find(it=>it.item===kind&&it.di.includes(i));
+function tickBtn(ws,it,big){const s=itemState(ws,it);return `<button type="button" class="tick ${s.done?'on':''} ${big?'big':''}" data-ws="${ws}" data-day="${it.day}" data-item="${it.item}" aria-pressed="${s.done}" aria-label="${it.t} ${s.done?'done':'not done'}"><span class="bx">${s.done?'✓':''}</span>${big?`<span class="tl">${s.done?(s.manual?'Done':'Done · auto'):s.auto&&s.manual?'Not done (manual)':'Tick when done'}</span>`:''}</button>`}
 function planBlocks(x){const p=x.p;if(p.rest)return'<div class="pb2 rst">😴 Rest day. Recover, walk if it feels good, and let the hip settle.</div>';let h='';
- if(p.w)h+=`<div class="pb2"><div class="pt"><span>🏋️ ${p.w.t}</span><span class="tag ${x.gym.length?'ok':''}">${x.gym.length?'✓ Done':x.past?'Missed':'Planned'}</span></div><ul>${p.w.x.map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
- if(p.s){const done=x.swim.length,alt=p.s.wknd&&!done&&x.wkSwim;h+=`<div class="pb2 sw"><div class="pt"><span>🏊 ${p.s.t}</span><span class="tag ${done||alt?'ok':''}">${done?'✓ '+(swmFull(x.swim)||'Done'):alt?'✓ Done this weekend':x.past&&!p.s.wknd?'Missed':'Planned'}</span></div><ul>${p.s.x.map(e=>`<li>${e}</li>`).join('')}</ul>${p.s.wknd?'<div class="cv">Saturday or Sunday, whichever suits.</div>':''}</div>`}
+ if(p.w){const it=itemFor(x.i,'weights');h+=`<div class="pb2"><div class="pt"><span>🏋️ ${p.w.t}</span>${tickBtn(x.ws,it,true)}</div><ul>${p.w.x.map(e=>`<li>${e}</li>`).join('')}</ul>${x.gym.length?`<div class="cv">Logged: ${x.gym.map(g=>(g.sets.length||0)+' sets').join(', ')}</div>`:''}</div>`}
+ if(p.s){const it=itemFor(x.i,'swim'),st=itemState(x.ws,it);h+=`<div class="pb2 sw"><div class="pt"><span>🏊 ${p.s.t}</span>${tickBtn(x.ws,it,true)}</div><ul>${p.s.x.map(e=>`<li>${e}</li>`).join('')}</ul>${st.hits.length?`<div class="cv">Logged: ${swmFull(st.hits)||st.hits.length+' swim'}</div>`:''}${p.s.wknd?'<div class="cv">One long swim, Saturday or Sunday. Either day ticks it.</div>':''}</div>`}
  return h}
-function renderPlan(W){const days=planWeek(W);PW=days;const t=days.find(x=>x.today)||days[0];
- const chip=x=>{const p=x.p;if(p.rest)return'<span class="pc rest">Rest</span>';let h='';if(p.w)h+=`<span class="pc w ${x.gym.length?'ok':''}">🏋️</span>`;if(p.s){const ok=x.swim.length||(p.s.wknd&&x.wkSwim);h+=`<span class="pc s ${ok?'ok':''}">🏊${x.swim.length?`<span class="km">${swm(x.swim)}</span>`:''}</span>`}return h};
- const done=days.reduce((a,x)=>a+(x.p.w&&x.gym.length?1:0),0),sdone=days.filter(x=>x.swim.length).length;
- document.getElementById('plan').innerHTML=`<div class="ph"><h2>This week · plan</h2><small>🏋️ ${done}/4 · 🏊 ${Math.min(sdone,4)}/4</small></div>
+function renderPlan(){const days=planWeek();PW=days;const t=days.find(x=>x.today)||days[0],ws=days[0].ws,cur=weekPct(ws);
+ const hist=[...Array(8)].map((_,k)=>{const w=addD(ws,-7*(7-k));return{w,...weekPct(w)}});
+ const chip=x=>{const p=x.p;if(p.rest)return'<span class="pc rest">Rest</span>';let h='';if(p.w){const s=itemState(ws,itemFor(x.i,'weights'));h+=`<span class="pc w ${s.done?'ok':''}">🏋️</span>`}if(p.s){const s=itemState(ws,itemFor(x.i,'swim'));h+=`<span class="pc s ${s.done?'ok':''}">🏊${x.swim.length?`<span class="km">${swm(x.swim)}</span>`:''}</span>`}return h};
+ const dueN=ITEMS.filter(it=>addD(ws,it.di[0])<=adk(new Date())).length;
+ const lbl=it=>it.day==='wknd'?'Sat/Sun':DN[DK.indexOf(it.day)];
+ const isToday=it=>it.di.includes(t.i);
+ document.getElementById('plan').innerHTML=`<div class="ph"><h2>This week · plan</h2><small>${cur.d}/${cur.n} done</small></div>
+ <div class="cmp"><div class="ring" style="--p:${cur.p}"><b>${cur.p}<i>%</i></b><small>this week</small></div>
+  <div class="hb"><div class="hbt">Last 8 weeks</div><div class="bars">${hist.map((h,k)=>`<div class="bc ${k===7?'cur':''}" title="Week of ${h.w}: ${h.p}%"><span class="bv">${h.p}</span><div class="bt"><div style="height:${Math.max(4,h.p)}%"></div></div><span class="bl">${k===7?'Now':new Date(h.w+'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'numeric',timeZone:'UTC'})}</span></div>`).join('')}</div>
+  <div class="hbt" style="margin-top:6px">${cur.d} of ${dueN} due so far · ${cur.n} planned</div></div></div>
  <div class="wk">${days.map(x=>`<button type="button" class="dy ${x.today?'today':x.past?'past':''}" data-i="${x.i}" aria-label="${DFN[x.i]} plan"><span class="dn">${DN[x.i]}</span><span class="dd">${x.dnum}</span>${chip(x)}</button>`).join('')}</div>
- <h4 style="margin:16px 0 0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)">Today · ${DFN[t.i]}</h4><div class="tdy">${planBlocks(t)}</div>
-`}
-function openDay(i){const x=(PW||[])[i];if(!x)return;
+ <h4 class="plh">Today · ${DFN[t.i]}</h4><div class="tdy">${planBlocks(t)}</div>
+ <h4 class="plh">Week checklist</h4><div class="chk">${ITEMS.map(it=>{const s=itemState(ws,it),past=addD(ws,it.di[it.di.length-1])<adk(new Date());return `<div class="ci ${isToday(it)?'td':''} ${s.done?'dn':''}">${tickBtn(ws,it)}<span class="cd">${lbl(it)}</span><span class="ct">${it.item==='weights'?'🏋️':'🏊'} ${it.t}</span><span class="cs">${s.done?(s.manual?'':'auto'):past?'missed':''}</span></div>`}).join('')}</div>
+ ${PMSG?`<div class="msg" style="margin-top:8px">${PMSG}</div>`:''}`}
+async function toggleCheck(b){const ws=b.dataset.ws,day=b.dataset.day,item=b.dataset.item,it=ITEMS.find(i=>i.day===day&&i.item===item);if(!it)return;
+ const s=itemState(ws,it),k=ck(ws,day,item),prev=PCHK[k],row={week_start:ws,day,item,done:!s.done,auto:false};
+ PCHK[k]={...row};PMSG='';rerenderPlan();
+ try{const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Not signed in');
+  const {error}=await sb.from('fitness_plan_checks').upsert({...row,user_id:session.user.id,updated_at:new Date().toISOString()},{onConflict:'user_id,week_start,day,item'});if(error)throw error;
+  try{const c=cached();if(c){c.checks=Object.values(PCHK);localStorage.setItem(CACHE,JSON.stringify(c))}}catch(e){}}
+ catch(e){if(prev)PCHK[k]=prev;else delete PCHK[k];PMSG='Could not save tick: '+(e.message||e);rerenderPlan()}}
+function rerenderPlan(){try{renderPlan()}catch(e){console.error(e)}if(dvOpen&&openDayIdx!=null)openDay(openDayIdx,true)}
+let openDayIdx=null;
+function openDay(i,refresh){const x=(PW||[])[i];if(!x)return;openDayIdx=i;
  document.getElementById('dvs').innerHTML=`<div class="hd"><h3>${DFN[x.i]} · ${x.dnum} ${x.mon}${x.today?' · Today':''}</h3><button class="x" id="dvx" aria-label="Close">✕</button></div><div class="tdy" style="grid-template-columns:1fr;margin-top:0">${planBlocks(x)}</div>${x.gym.length||x.swim.length?`<h4>Logged</h4>${[...x.gym,...x.swim].map(w=>`<div class="ses act-open" data-id="${w.id}" style="cursor:pointer"><div class="sd">${w.type==='gym'?'🏋️ Strength':'🏊 Swim'}<span>${w.type==='swim'?swmFull([w]):(w.sets||[]).length+' sets'}${w.min?' · '+w.min+' min':''}</span></div></div>`).join('')}`:''}`;
- DV.hidden=false;document.body.classList.add('noscroll');document.getElementById('dvx').onclick=()=>closeDetail();if(!dvOpen)history.pushState({dv:'day'},'');dvOpen=true;
- document.querySelectorAll('#dvs .act-open').forEach(el=>el.onclick=()=>openAct(+el.dataset.id))}
-document.getElementById('plan').addEventListener('click',e=>{const b=e.target.closest('.dy');if(b)openDay(+b.dataset.i)});
+ document.getElementById('dvx').onclick=()=>closeDetail();document.querySelectorAll('#dvs .act-open').forEach(el=>el.onclick=()=>{openDayIdx=null;openAct(+el.dataset.id)});
+ if(refresh)return;DV.hidden=false;document.body.classList.add('noscroll');if(!dvOpen)history.pushState({dv:'day'},'');dvOpen=true}
+document.getElementById('plan').addEventListener('click',e=>{const tb=e.target.closest('.tick');if(tb){e.stopPropagation();toggleCheck(tb);return}const b=e.target.closest('.dy');if(b)openDay(+b.dataset.i)});
+document.getElementById('dvs').addEventListener('click',e=>{const tb=e.target.closest('.tick');if(tb)toggleCheck(tb)});
 window.__openDay=openDay;
 
 
 if(localStorage.getItem('cw-fitness-auth')){const c=cached();if(c){openApp(c.email);try{render(hydrate(c));window.__cacheRendered=true}catch(e){console.error(e)}}}
 sb.auth.onAuthStateChange((ev,session)=>{if(session)setTimeout(()=>showApp(session),0);else if(ev==='SIGNED_OUT'||ev==='INITIAL_SESSION')showAuth()});
 function render({W,S}){
-try{renderPlan(W)}catch(e){console.error(e)}
+try{renderPlan()}catch(e){console.error(e)}
 if(typeof Chart==='undefined')return;
 ['cMin','cMix','cRun'].forEach(id=>Chart.getChart(id)?.destroy());
 // ===== RENDER =====
