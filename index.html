@@ -283,7 +283,7 @@ const PLAN={
   {w:{t:'Upper body',x:['Rows','Pullovers or a pulldown variation','Light shoulders','Arms: biceps curls and triceps pushdowns, 2–3 sets each']}},
   {w:{t:'Shoulders, chest & core',x:['Seated shoulder press (Mega Mass or dumbbells)','Lateral raises','Rear delt fly (machine or cable)','Incline press or pec deck','Core: cable crunch, plus Pallof press or plank if the hip tolerates them (avoid hanging leg raises and sit-ups)']},s:{t:'Threshold',x:['8 × 200 m at a comfortably hard effort, 90 s rest']}},
   {s:{t:'Long easy swim',x:['1,500–2,000 m easy'],wknd:true}},
-  {s:{t:'Long easy swim',x:['1,500–2,000 m easy'],wknd:true}}]};
+  {rest:true}]};
 const DN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],DFN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],DK=['mon','tue','wed','thu','fri','sat','sun'];
 const adk=d=>new Date(d).toLocaleDateString('en-CA',{timeZone:'Australia/Adelaide'});
 const addD=(k,n)=>{const [y,m,d]=k.split('-').map(Number),t=new Date(Date.UTC(y,m-1,d+n));return t.toISOString().slice(0,10)};
@@ -316,7 +316,7 @@ const moveBtn=(ws,it)=>`<button type="button" class="mvb" data-ws="${ws}" data-d
 function planBlocks(x){const ws=x.ws,its=onDay(ws,x.i),away=awayFrom(ws,x.i);let h='';
  if(!its.length&&!away.length&&x.p.rest)return'<div class="pb2 rst">😴 Rest day. Recover, walk if it feels good, and let the hip settle.</div>';
  its.forEach(it=>{const d=detailOf(it),st=itemState(ws,it),sw=it.item==='swim',mv=st.moved&&!it.di.includes(x.i);
-  h+=`<div class="pb2 ${sw?'sw':''}"><div class="pt"><span>${sw?'🏊':'🏋️'} ${d.t}</span><span class="pa">${moveBtn(ws,it)}${tickBtn(ws,it,true)}</span></div>${mv?`<div class="cv mvn">Moved from ${it.day==='wknd'?'the weekend':DFN[it.src]}</div>`:''}<ul>${d.x.map(e=>`<li>${e}</li>`).join('')}</ul>${st.hits.length?`<div class="cv">Logged: ${sw?(swmFull(st.hits)||st.hits.length+' swim'):st.hits.map(g=>(g.sets.length||0)+' sets').join(', ')}</div>`:''}${sw&&d.wknd&&!st.moved?'<div class="cv">One long swim, Saturday or Sunday. Either day ticks it.</div>':''}</div>`});
+  h+=`<div class="pb2 ${sw?'sw':''}"><div class="pt"><span>${sw?'🏊':'🏋️'} ${d.t}</span><span class="pa">${moveBtn(ws,it)}${tickBtn(ws,it,true)}</span></div>${mv?`<div class="cv mvn">Moved from ${it.day==='wknd'?'the weekend':DFN[it.src]}</div>`:''}<ul>${d.x.map(e=>`<li>${e}</li>`).join('')}</ul>${st.hits.length?`<div class="cv">Logged: ${sw?(swmFull(st.hits)||st.hits.length+' swim'):st.hits.map(g=>(g.sets.length||0)+' sets').join(', ')}</div>`:''}${sw&&d.wknd&&!st.moved?'<div class="cv">One long swim for the weekend. Swimming Sunday instead? Tap Move.</div>':''}</div>`});
  if(!its.length&&x.p.rest)h='<div class="pb2 rst">😴 Rest day.</div>'+h;
  else if(!its.length)h+='<div class="pb2 rst">Nothing planned now: everything was moved.</div>';
  away.forEach(it=>{h+=`<div class="pb2 gone"><div class="pt"><span>${it.item==='swim'?'🏊':'🏋️'} ${detailOf(it).t}</span><span class="pa">${moveBtn(ws,it)}</span></div><div class="cv">Moved to ${DFN[effDi(ws,it)[0]]}</div></div>`});
