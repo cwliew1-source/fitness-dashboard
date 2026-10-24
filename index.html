@@ -208,7 +208,7 @@ const dots=document.getElementById('dots'),pad=document.getElementById('pad');
 const fmtT=d=>new Date(d).toLocaleString('en-AU',{weekday:'short',hour:'numeric',minute:'2-digit'});
 function drawDots(){[...dots.children].forEach((d,i)=>d.classList.toggle('on',i<pin.length))}
 function lockUntil(t){localStorage.setItem('cw-lock',t);pad.classList.add('off');msg('Locked until '+fmtT(t)+'. Ask Grok Bot to unlock early.');clearTimeout(lockTimer);lockTimer=setTimeout(checkLock,Math.max(1000,new Date(t)-Date.now()))}
-function checkLock(){const t=localStorage.getItem('cw-lock');if(t&&new Date(t)>new Date())lockUntil(t);else{localStorage.removeItem('cw-lock');pad.classList.remove('off');if(/Locked/.test(document.getElementById('authMsg').textContent))msg('')}}
+function checkLock(){{localStorage.removeItem('cw-lock');pad.classList.remove('off');if(/Locked/.test(document.getElementById('authMsg').textContent))msg('')}}
 async function submitPin(){busy=true;msg('');
  try{const r=await fetch(PIN_URL,{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY},body:JSON.stringify({pin})});const b=await r.json().catch(()=>({}));
   if(r.ok){localStorage.removeItem('cw-lock');const {error}=await sb.auth.setSession({access_token:b.access_token,refresh_token:b.refresh_token});if(error)msg(error.message)}
