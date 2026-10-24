@@ -147,7 +147,7 @@ details.pn ul{margin:0;padding:0 14px 12px 32px;font-size:.84rem;line-height:1.5
  <div class="msg" id="authMsg"></div>
 </div></div>
 <div id="app" hidden><div class="wrap">
-<header><div class="top"><span class="chip" id="who"></span><span><button class="btn sm ghost" id="refBtn" title="Refresh data"><span class="spin" id="refIc">↻</span> Refresh</button> <button class="btn sm ghost" id="outBtn">Sign out</button></span></div><h1>Keep <span>moving</span>, Chien-Wen.</h1><div class="sub" id="sub"></div></header>
+<header><div class="top"><span class="chip" id="who"></span><span><a class="btn sm ghost" href="health.html" style="text-decoration:none">♥ Health</a> <button class="btn sm ghost" id="refBtn" title="Refresh data"><span class="spin" id="refIc">↻</span> Refresh</button> <button class="btn sm ghost" id="outBtn">Sign out</button></span></div><h1>Keep <span>moving</span>, Chien-Wen.</h1><div class="sub" id="sub"></div></header>
 <div class="hero" style="margin-bottom:16px">
  <div class="card stat main"><small>This week</small><b><span data-c id="sw">0</span><span class="u">/ 3 sessions</span></b><div class="bar"><div id="swbar"></div></div></div>
  <div class="card stat"><small>🔥 Goal streak</small><b><span data-c id="st">0</span><span class="u">wks</span></b></div>
@@ -220,7 +220,7 @@ pad.onclick=async e=>{const k=e.target.closest('button')?.dataset.k;if(!k||busy)
 document.addEventListener('keydown',e=>{if(document.getElementById('auth').hidden)return;if(/^[0-9]$/.test(e.key))pad.querySelector(`[data-k="${e.key}"]`).click();else if(e.key==='Backspace')pad.querySelector('[data-k=del]').click()});
 document.getElementById('refBtn').onclick=async()=>{const b=document.getElementById('refBtn');if(b.disabled)return;b.disabled=true;b.classList.add('spinning');
  try{render(hydrate(await fetchData()))}catch(e){console.error(e);document.getElementById('sub').textContent='Refresh failed: '+(e.message||e)}finally{b.disabled=false;b.classList.remove('spinning')}};
-document.getElementById('outBtn').onclick=async()=>{localStorage.removeItem(CACHE);await sb.auth.signOut();location.replace(location.pathname)};
+document.getElementById('outBtn').onclick=async()=>{localStorage.removeItem(CACHE);localStorage.removeItem('cw-health-cache');await sb.auth.signOut();location.replace(location.pathname)};
 
 const DV=document.getElementById('dv');let dvOpen=false;
 function openDetail(k,push){const F=(window.__LF||[]).find(x=>x.k===k);if(!F)return;
