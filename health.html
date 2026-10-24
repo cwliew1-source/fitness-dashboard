@@ -1,0 +1,218 @@
+<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>CW · Health</title>
+<meta name="theme-color" content="#07080c">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Health">
+<link rel="manifest" href="manifest-health.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://kdtfwfkzggjqeqtxunit.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080c;--card:rgba(255,255,255,.04);--bd:rgba(255,255,255,.08);--tx:#eef0f6;--mu:#7f8399;--grn:#2ee6a6;--yel:#ffc53d;--red:#ff4d6d;--blu:#4da3ff;--vio:#a77bff;--cy:#36d6ff;--org:#ff8a3d}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--tx);min-height:100vh;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 30px);
+background:radial-gradient(900px 500px at 15% -10%,rgba(46,230,166,.10),transparent 60%),radial-gradient(800px 500px at 100% 0%,rgba(167,123,255,.12),transparent 60%),var(--bg);background-attachment:fixed;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+header h1{font-size:22px;font-weight:900;letter-spacing:-.5px}header h1 span{background:linear-gradient(90deg,var(--grn),var(--cy),var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent}
+a.bk{color:var(--mu);text-decoration:none;font-size:13px;border:1px solid var(--bd);padding:7px 11px;border-radius:999px;background:var(--card)}
+.asof{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#ffd58a;background:rgba(255,197,61,.08);border:1px solid rgba(255,197,61,.25);padding:5px 10px;border-radius:999px;margin-bottom:12px}
+.asof i{width:6px;height:6px;border-radius:50%;background:var(--yel);box-shadow:0 0 8px var(--yel)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);position:relative;overflow:hidden;animation:up .6s cubic-bezier(.2,.8,.2,1) both}
+.card h3{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mu);font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card h3 em{font-style:normal;letter-spacing:0;text-transform:none;font-weight:600;color:var(--tx);font-size:12px}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:12px}
+@media(min-width:900px){.grid.main{grid-template-columns:1.05fr 1fr 1fr}.span2{grid-column:span 2}.span3{grid-column:1/-1}}
+.picker{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.picker button{width:38px;height:38px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:18px;cursor:pointer}
+.picker button:disabled{opacity:.3}
+.strip{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.strip::-webkit-scrollbar{display:none}
+.dy{flex:0 0 auto;width:42px;padding:6px 0;border-radius:12px;text-align:center;border:1px solid transparent;cursor:pointer;color:var(--mu);font-size:10px}
+.dy b{display:block;font-size:14px;color:var(--tx);margin:2px 0}
+.dy i{display:block;width:6px;height:6px;border-radius:50%;margin:0 auto;background:#333}
+.dy.on{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.07)}
+input[type=date]{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:12px;height:38px;padding:0 8px;font:inherit;font-size:12px;color-scheme:dark}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:20px}
+.ringwrap{position:relative;width:230px;height:230px}
+.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringc b{font-size:64px;font-weight:900;letter-spacing:-3px;line-height:1}
+.ringc b small{font-size:22px;letter-spacing:0;opacity:.6}
+.ringc span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-top:6px}
+.state{margin-top:10px;font-weight:800;font-size:15px}
+.hsub{color:var(--mu);font-size:12.5px;margin-top:4px;max-width:300px}
+.arc{transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:18px}
+.mini{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:16px;padding:10px 4px;display:flex;flex-direction:column;align-items:center}
+.mini svg{width:64px;height:64px;transform:rotate(-90deg)}
+.mini .v{font-weight:800;font-size:15px;margin-top:-42px;height:42px}
+.mini small{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mu)}
+.big{font-size:34px;font-weight:900;letter-spacing:-1px}.big small{font-size:14px;color:var(--mu);font-weight:600;margin-left:3px;letter-spacing:0}
+.delta{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.up{color:var(--grn);background:rgba(46,230,166,.1)}.dn{color:var(--red);background:rgba(255,77,109,.1)}.ne{color:var(--mu);background:rgba(255,255,255,.06)}
+.chart{width:100%;height:150px;display:block;margin-top:6px}
+.chart text{fill:var(--mu);font-size:9px;font-family:'JetBrains Mono',monospace}
+.line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2000;stroke-dashoffset:2000;animation:draw 1.6s .2s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.bar{transform-origin:bottom;transform-box:fill-box;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleY(0)}}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--mu);margin-top:6px}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+.row2{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:900px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:13px;animation:up .6s both}
+.tile small{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mu);font-weight:700}
+.tile b{display:block;font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.5px}.tile b em{font-style:normal;font-size:12px;color:var(--mu);font-weight:600;margin-left:2px}
+.tile span{font-size:11px;color:var(--mu)}
+.spark{width:100%;height:28px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{padding:8px 4px;border-bottom:1px solid var(--bd);text-align:right}td:first-child,th:first-child{text-align:left;color:var(--mu)}th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mu);font-weight:700}
+details{font-size:12.5px;color:var(--mu);line-height:1.6}details summary{cursor:pointer;color:var(--tx);font-weight:700}details code{color:var(--cy);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+#gate{display:none;text-align:center;padding:80px 20px}#gate a{color:var(--grn)}
+.glow{position:absolute;inset:auto -40% -60% -40%;height:70%;filter:blur(50px);opacity:.25;pointer-events:none}
+</style></head><body><div class="wrap">
+<header><h1>CW <span>Health</span></h1><a class="bk" href="./">← Fitness</a></header>
+<div id="gate"><p>Sign in on the <a href="./">fitness dashboard</a> first, then come back here.</p></div>
+<div id="app" style="display:none">
+<div class="asof"><i></i><span id="asof">Loading…</span></div>
+<div class="picker"><button id="prev" aria-label="Previous day">‹</button><div class="strip" id="strip"></div><button id="next" aria-label="Next day">›</button><input type="date" id="dpick" aria-label="Pick a date"></div>
+<div class="grid main" id="main"></div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL='https://kdtfwfkzggjqeqtxunit.supabase.co',SB_KEY='sb_publishable_FXJwxcfegK5ETsO_Db21Iw_UNBnCFFZ';
+const NEED=7.5,STEP_GOAL=10000;
+let D=[],IDX={},SEL=null;
+const $=s=>document.querySelector(s);
+const avg=a=>{a=a.filter(x=>x!=null&&!isNaN(x));return a.length?a.reduce((s,x)=>s+ +x,0)/a.length:null};
+const sd=a=>{const m=avg(a);a=a.filter(x=>x!=null);return a.length>1?Math.sqrt(avg(a.map(x=>(x-m)**2))):0};
+const f=(v,d=0)=>v==null||isNaN(v)?'–':(+v).toLocaleString('en-AU',{maximumFractionDigits:d,minimumFractionDigits:d});
+const addD=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const fmtD=s=>new Date(s+'T12:00:00Z').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+const band=r=>r==null?'#555':r>=67?'var(--grn)':r>=34?'var(--yel)':'var(--red)';
+const bandHex=r=>r==null?'#555':r>=67?'#2ee6a6':r>=34?'#ffc53d':'#ff4d6d';
+function series(key,end,n){const o=[];for(let i=n-1;i>=0;i--){const d=addD(end,-i);o.push({d,v:IDX[d]?IDX[d][key]:null})}return o}
+function lastVal(key,end,max=400){for(let i=0;i<max;i++){const r=IDX[addD(end,-i)];if(r&&r[key]!=null)return {v:+r[key],d:r.date}}return null}
+function ring(r,pct,col,w,id){const c=2*Math.PI*r;return `<circle cx="50%" cy="50%" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="${w}"/><circle class="arc" ${id?`id="${id}"`:''} cx="50%" cy="50%" r="${r}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c*(1-Math.max(0,Math.min(1,pct)))}"/>`}
+function lineChart(s,o={}){const W=600,H=150,P=22;const vals=s.map(x=>x.v).filter(v=>v!=null);if(!vals.length)return '<div class="hsub">No data in this window</div>';
+ let lo=Math.min(...vals,...(o.band||[]).flatMap(b=>b?[b[0]]:[])),hi=Math.max(...vals,...(o.band||[]).flatMap(b=>b?[b[1]]:[]));const pad=(hi-lo)*.12||1;lo-=pad;hi+=pad;
+ const x=i=>P+i*(W-P-6)/(s.length-1||1),y=v=>H-16-(v-lo)/(hi-lo)*(H-26);
+ let g='';if(o.band){let top='',bot='';o.band.forEach((b,i)=>{if(b){top+=`${top?'L':'M'}${x(i)},${y(b[1])}`}});const rv=o.band.map((b,i)=>[b,i]).filter(z=>z[0]).reverse();rv.forEach(([b,i])=>bot+=`L${x(i)},${y(b[0])}`);if(top)g+=`<path d="${top}${bot}Z" fill="${o.col}" opacity=".10"/>`;
+  let m='';o.band.forEach((b,i)=>{if(b)m+=`${m?'L':'M'}${x(i)},${y((b[0]+b[1])/2)}`});g+=`<path d="${m}" fill="none" stroke="${o.col}" stroke-opacity=".45" stroke-dasharray="3 4"/>`}
+ let p='',pts='';s.forEach((q,i)=>{if(q.v!=null){p+=`${p?'L':'M'}${x(i).toFixed(1)},${y(q.v).toFixed(1)}`}});
+ const li=s.length-1-[...s].reverse().findIndex(q=>q.v!=null);const lv=s[li];
+ for(let k=0;k<3;k++){const v=lo+pad+(hi-lo-2*pad)*k/2;g+=`<line x1="${P}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,.05)"/><text x="0" y="${y(v)+3}">${f(v)}</text>`}
+ g+=`<text x="${P}" y="${H-2}">${s[0].d.slice(5)}</text><text x="${W-40}" y="${H-2}">${s[s.length-1].d.slice(5)}</text>`;
+ const gid='g'+Math.random().toString(36).slice(2,7);
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="${gid}" x1="0" x2="1"><stop offset="0" stop-color="${o.col}" stop-opacity=".35"/><stop offset="1" stop-color="${o.col}"/></linearGradient></defs>${g}<path class="line" d="${p}" stroke="url(#${gid})" vector-effect="non-scaling-stroke"/>${lv?`<circle cx="${x(li)}" cy="${y(lv.v)}" r="4" fill="${o.col}" stroke="#07080c" stroke-width="2" vector-effect="non-scaling-stroke"/>`:''}</svg>`}
+function bars(s,o){const W=600,H=o.h||140;const mx=Math.max(o.goal||0,...s.map(q=>q.v||0))*1.08||1;const bw=(W-4)/s.length;let g='';
+ if(o.goal){const gy=H-14-o.goal/mx*(H-20);g+=`<line x1="0" x2="${W}" y1="${gy}" y2="${gy}" stroke="${o.col}" stroke-opacity=".5" stroke-dasharray="4 4"/>`}
+ s.forEach((q,i)=>{if(!q.v)return;const h=q.v/mx*(H-20);const hit=o.goal&&q.v>=o.goal;g+=`<rect class="bar" style="animation-delay:${i*15}ms" x="${2+i*bw+bw*.15}" y="${H-14-h}" width="${bw*.7}" height="${h}" rx="${Math.min(4,bw*.3)}" fill="${hit?o.col:o.col2||o.col}" opacity="${i==s.length-1?1:hit?.85:.45}"/>`});
+ g+=`<text x="0" y="${H-2}">${s[0].d.slice(5)}</text><text x="${W-40}" y="${H-2}">${s[s.length-1].d.slice(5)}</text>`;
+ return `<svg class="chart" style="height:${H}px" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${g}</svg>`}
+function stack(s){const W=600,H=150;const mx=Math.max(9*60,...s.map(q=>q.r?(+q.r.sleep_min||0)+(+q.r.awake_min||0):0));const bw=(W-4)/s.length;let g='';
+ const ny=H-14-NEED*60/mx*(H-20);g+=`<line x1="0" x2="${W}" y1="${ny}" y2="${ny}" stroke="#fff" stroke-opacity=".25" stroke-dasharray="4 4"/><text x="${W-60}" y="${ny-4}">7.5h need</text>`;
+ s.forEach((q,i)=>{const r=q.r;if(!r||!r.sleep_min)return;let y0=H-14;const parts=[['deep_min','#5b5bff'],['core_min','#4da3ff'],['rem_min','#36d6ff'],['awake_min','#ff8a3d']];
+  const staged=r.deep_min||r.core_min||r.rem_min;const ps=staged?parts:[['sleep_min','#4da3ff'],['awake_min','#ff8a3d']];
+  ps.forEach(([k,c])=>{const v=+r[k]||0;if(!v)return;const h=v/mx*(H-20);y0-=h;g+=`<rect class="bar" style="animation-delay:${i*25}ms" x="${2+i*bw+bw*.17}" y="${y0}" width="${bw*.66}" height="${h}" fill="${c}" opacity="${i==s.length-1?1:.8}"/>`})});
+ g+=`<text x="0" y="${H-2}">${s[0].d.slice(5)}</text><text x="${W-40}" y="${H-2}">${s[s.length-1].d.slice(5)}</text>`;
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${g}</svg>`}
+function gauge(v,max){const pct=Math.min(1,(v||0)/max);const r=52,c=Math.PI*r;const col=v<3?'#2ee6a6':v<8?'#ffc53d':'#ff4d6d';
+ return `<svg viewBox="0 0 130 78" style="width:130px"><path d="M13 70 A52 52 0 0 1 117 70" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="11" stroke-linecap="round"/><path class="arc" d="M13 70 A52 52 0 0 1 117 70" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c*(1-pct)}"/><text x="65" y="62" text-anchor="middle" fill="#eef0f6" font-size="22" font-weight="900" font-family="Inter">${f(v,1)}h</text><text x="65" y="76" text-anchor="middle" fill="#7f8399" font-size="8" letter-spacing="1">SLEEP DEBT</text></svg>`}
+function spark(s,col){const v=s.map(q=>q.v).filter(x=>x!=null);if(v.length<2)return '';const lo=Math.min(...v),hi=Math.max(...v)||1;let p='';s.forEach((q,i)=>{if(q.v!=null)p+=`${p?'L':'M'}${(i/(s.length-1)*100).toFixed(1)},${(26-(q.v-lo)/((hi-lo)||1)*24).toFixed(1)}`});return `<svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none"><path d="${p}" fill="none" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`}
+function dl(cur,base,goodUp=true,unit='',d=0){if(cur==null||base==null)return '<span class="delta ne">–</span>';const x=cur-base;const good=goodUp?x>=0:x<=0;const cls=Math.abs(x)<(Math.abs(base)*.02)?'ne':good?'up':'dn';return `<span class="delta ${cls}">${x>=0?'▲':'▼'} ${f(Math.abs(x),d)}${unit}</span>`}
+function render(){const r=IDX[SEL]||{date:SEL};const days=D.map(x=>x.date);
+ const rec=r.recovery!=null?+r.recovery:null;const col=bandHex(rec);
+ const st=rec==null?'No recovery score':rec>=67?'Recovered — ready to push':rec>=34?'Moderate — train with control':'Low — prioritise recovery';
+ const sl=r.sleep_min?r.sleep_min/60:null,slp=sl?Math.min(100,Math.round(sl/NEED*100)):null,strain=r.strain!=null?+r.strain:null;
+ const hrv60=series('hrv',SEL,60),rhr60=series('rhr',SEL,60);
+ const hb=hrv60.map((q,i)=>{const w=series('hrv',addD(q.d,-1),60).map(z=>z.v).filter(v=>v!=null);if(w.length<10)return null;const m=avg(w),s=sd(w);return [m-s,m+s]});
+ const hrv7=avg(series('hrv',SEL,7).map(q=>q.v)),hbase=r.hrv_base!=null?+r.hrv_base:avg(series('hrv',addD(SEL,-1),60).map(q=>q.v));
+ const rhr7=avg(series('rhr',SEL,7).map(q=>q.v)),rbase=r.rhr_base!=null?+r.rhr_base:avg(series('rhr',addD(SEL,-1),60).map(q=>q.v));
+ const sl14=series('x',SEL,14).map(q=>({d:q.d,r:IDX[q.d]}));
+ const st30=series('steps',SEL,30),st7=avg(series('steps',SEL,7).map(q=>q.v)),stA30=avg(st30.map(q=>q.v));
+ const vo=lastVal('vo2max',SEL,730),wt=lastVal('weight',SEL,365);
+ const T=(k,n,e=SEL)=>avg(series(k,e,n).map(q=>q.v));
+ const trow=(lab,k,d,goodUp,mul=1)=>{const a=T(k,7),b=T(k,7,addD(SEL,-7)),c=T(k,30),e=T(k,30,addD(SEL,-30));const m=v=>v==null?null:v*mul;return `<tr><td>${lab}</td><td class="mono">${f(m(a),d)}</td><td>${dl(m(a),m(b),goodUp,'',d)}</td><td class="mono">${f(m(c),d)}</td><td>${dl(m(c),m(e),goodUp,'',d)}</td></tr>`};
+ const stp=r.steps!=null?+r.steps:null;
+ $('#main').innerHTML=`
+ <div class="card hero" style="animation-delay:0ms"><div class="glow" style="background:${col}"></div>
+  <h3 style="width:100%"><span>Recovery</span><em>${fmtD(SEL)}</em></h3>
+  <div class="ringwrap"><svg viewBox="0 0 230 230"><defs><linearGradient id="rg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".55"/><stop offset="1" stop-color="${col}"/></linearGradient><filter id="gl"><feGaussianBlur stdDeviation="4"/></filter></defs>
+   ${[[0,.34,'#ff4d6d'],[.34,.67,'#ffc53d'],[.67,1,'#2ee6a6']].map(([a,b,c])=>{const R=108,C=2*Math.PI*R;return `<circle cx="115" cy="115" r="${R}" fill="none" stroke="${c}" stroke-opacity=".5" stroke-width="3" stroke-dasharray="${C*(b-a)-3} ${C}" stroke-dashoffset="${-C*a}"/>`}).join('')}
+   <g filter="url(#gl)" opacity=".6">${ring(92,(rec||0)/100,col,16)}</g>${ring(92,(rec||0)/100,'url(#rg)',16)}</svg>
+   <div class="ringc"><b class="mono" data-count="${rec??''}">${rec??'–'}<small>${rec!=null?'%':''}</small></b><span>Recovery</span></div></div>
+  <div class="state" style="color:${col}">${st}</div>
+  <div class="hsub">HRV ${f(r.hrv,0)} ms vs ${f(hbase,0)} baseline · RHR ${f(r.rhr,0)} vs ${f(rbase,0)} · Sleep ${sl?f(sl,1)+'h':'–'}</div>
+  <div class="trio">
+   <div class="mini"><svg viewBox="0 0 64 64">${ring(27,(slp||0)/100,'#4da3ff',6)}</svg><div class="v">${slp??'–'}</div><small>Sleep %</small></div>
+   <div class="mini"><svg viewBox="0 0 64 64">${ring(27,(strain||0)/21,'#ff8a3d',6)}</svg><div class="v">${strain!=null?f(strain,1):'–'}</div><small>Strain</small></div>
+   <div class="mini"><svg viewBox="0 0 64 64">${ring(27,Math.min(1,(r.hrv||0)/((hbase||50)*1.5)),'#a77bff',6)}</svg><div class="v">${f(r.hrv,0)}</div><small>HRV ms</small></div>
+  </div></div>
+ <div class="card" style="animation-delay:60ms"><h3><span>HRV · 60 days</span><em>7d vs 60d baseline</em></h3>
+  <div class="big mono">${f(hrv7,0)}<small>ms</small>${dl(hrv7,hbase,true,' ms')}</div>
+  ${lineChart(hrv60,{col:'#a77bff',band:hb})}
+  <div class="legend"><span><i style="background:#a77bff"></i>Daily HRV (SDNN)</span><span><i style="background:rgba(167,123,255,.3)"></i>Baseline ±1 SD</span></div>
+  <h3 style="margin-top:16px"><span>Resting HR · 60 days</span><em>7d avg</em></h3>
+  <div class="big mono">${f(rhr7,1)}<small>bpm</small>${dl(rhr7,rbase,false,' bpm',1)}</div>
+  ${lineChart(rhr60,{col:'#ff4d6d'})}</div>
+ <div class="card" style="animation-delay:120ms"><h3><span>Sleep · 14 nights</span><em>${sl?f(sl,1)+'h last night':''}</em></h3>
+  <div class="row2"><div><div class="big mono">${sl?Math.floor(sl)+'<small>h</small> '+Math.round((sl%1)*60)+'<small>m</small>':'–'}</div>
+   <div class="hsub" style="text-align:left">Deep ${f(r.deep_min,0)}m · REM ${f(r.rem_min,0)}m · Core ${f(r.core_min,0)}m · Awake ${f(r.awake_min,0)}m</div></div>${gauge(r.sleep_debt_h!=null?+r.sleep_debt_h:null,20)}</div>
+  ${stack(sl14)}
+  <div class="legend"><span><i style="background:#5b5bff"></i>Deep</span><span><i style="background:#4da3ff"></i>Core</span><span><i style="background:#36d6ff"></i>REM</span><span><i style="background:#ff8a3d"></i>Awake</span></div></div>
+ <div class="card span2" style="animation-delay:180ms"><h3><span>Steps · 30 days</span><em>goal ${f(STEP_GOAL)}</em></h3>
+  <div class="row2" style="grid-template-columns:110px 1fr"><div style="position:relative;width:110px;height:110px"><svg viewBox="0 0 110 110" style="width:110px;transform:rotate(-90deg)">${ring(46,(stp||0)/STEP_GOAL,'#2ee6a6',10)}</svg><div class="ringc"><b class="mono" style="font-size:20px;letter-spacing:-.5px">${f(stp)}</b><span style="font-size:9px;letter-spacing:1px">${stp?Math.round(stp/STEP_GOAL*100)+'% goal':'steps'}</span></div></div>
+  <div><div class="big mono">${f(st7)}<small>7d avg</small></div><div class="hsub" style="text-align:left">30-day avg ${f(stA30)} · ${st30.filter(q=>q.v>=STEP_GOAL).length}/30 days at goal</div></div></div>
+  ${bars(st30,{col:'#2ee6a6',col2:'#2ee6a6',goal:STEP_GOAL})}</div>
+ <div class="card" style="animation-delay:240ms"><h3><span>Strain · 30 days</span><em>0–21 scale</em></h3>
+  <div class="big mono">${f(T('strain',7),1)}<small>7d avg</small></div>
+  ${bars(series('strain',SEL,30),{col:'#ff8a3d',h:120})}
+  <div class="hsub" style="text-align:left">Active ${f(r.active_kcal)} kcal · Exercise ${f(r.exercise_min)} min · Stand ${f(r.stand_h)} h</div></div>
+ <div class="span3 tiles">
+  ${[['VO₂ max',vo?f(vo.v,1):'–','ml/kg/min',vo?'as of '+vo.d:'',series('vo2max',SEL,365),'#36d6ff'],
+     ['Respiratory',f(r.resp,1),'br/min','7d '+f(T('resp',7),1),series('resp',SEL,30),'#4da3ff'],
+     ['Blood oxygen',f(r.spo2,0),'%','7d '+f(T('spo2',7),1)+'%',series('spo2',SEL,30),'#2ee6a6'],
+     ['Wrist temp',r.wrist_temp!=null?f(r.wrist_temp,1):'–','°C','30d '+f(T('wrist_temp',30),2)+'°',series('wrist_temp',SEL,30),'#ff8a3d'],
+     ['Walking HR',f(r.walk_hr,0),'bpm','7d '+f(T('walk_hr',7),0),series('walk_hr',SEL,30),'#ff4d6d'],
+     ['Active energy',f(r.active_kcal),'kcal','7d '+f(T('active_kcal',7)),series('active_kcal',SEL,30),'#ffc53d'],
+     ['Distance',f(r.distance_km,1),'km','7d '+f(T('distance_km',7),1),series('distance_km',SEL,30),'#a77bff'],
+     ['Weight',wt?f(wt.v,1):'–','kg',wt?'as of '+wt.d:'',series('weight',SEL,365),'#eef0f6']]
+   .map((t,i)=>`<div class="tile" style="animation-delay:${300+i*40}ms"><small>${t[0]}</small><b class="mono">${t[1]}<em>${t[2]}</em></b><span>${t[3]}</span>${spark(t[4],t[5])}</div>`).join('')}</div>
+ <div class="card span3" style="animation-delay:400ms"><h3><span>Trends</span><em>vs previous period</em></h3>
+  <table><tr><th>Metric</th><th>7d</th><th>Δ</th><th>30d</th><th>Δ</th></tr>
+  ${trow('Recovery %','recovery',0,true)}${trow('HRV ms','hrv',0,true)}${trow('Resting HR','rhr',1,false)}${trow('Sleep h','sleep_min',2,true,1/60)}${trow('Steps','steps',0,true)}${trow('Strain','strain',1,true)}${trow('Active kcal','active_kcal',0,true)}${trow('Exercise min','exercise_min',0,true)}</table></div>
+ <div class="card span3" style="animation-delay:450ms"><details><summary>How these scores are worked out</summary><p style="margin-top:8px">
+  <b>Recovery (0–100)</b> = 50% HRV + 25% resting HR + 25% sleep. HRV part <code>50 + 20 × (today − 60-day mean) ÷ 60-day SD</code>; resting HR part <code>50 + 20 × (60-day mean − today) ÷ SD</code> (lower is better); sleep part <code>100 × sleep ÷ 7.5h</code>. Each part is clamped 0–100. Baselines use the 60 days before the selected day and need at least 10 readings. ≥67 green, 34–66 yellow, &lt;34 red.<br>
+  <b>Sleep debt</b> = sum of (7.5h − sleep) over the last 14 nights with data, floored at 0. A night belongs to the date you woke up. Apple Watch sleep is used when present, otherwise the source with the most sleep that night (WHOOP, Eight Sleep, iPhone).<br>
+  <b>Strain (0–21)</b> = <code>21 × (1 − e^(−load/1500))</code>, where load = active kcal + 5 × exercise minutes.<br>
+  <b>Steps / energy / exercise</b>: iPhone and Watch overlap, so each hour takes the highest single-source value, then hours are summed.</p></details></div>`;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.arc').forEach(a=>a.style.strokeDashoffset=a.dataset.off)));
+ // strip
+ const end=days[days.length-1];let last=addD(SEL,7);if(last>end)last=end;let h='';for(let i=20;i>=0;i--){const d=addD(last,-i);const x=IDX[d],dt=new Date(d+'T12:00:00Z');h+=`<div class="dy ${d==SEL?'on':''}" data-d="${d}">${dt.toLocaleDateString('en-AU',{weekday:'short',timeZone:'UTC'})}<b>${dt.getUTCDate()}</b><i style="background:${x?band(x.recovery):'#222'}"></i></div>`}
+ $('#strip').innerHTML=h;const on=$('#strip .on');if(on)on.scrollIntoView({inline:'center',block:'nearest'});
+ $('#dpick').value=SEL;$('#next').disabled=SEL>=end;$('#prev').disabled=SEL<=days[0];
+ document.querySelectorAll('[data-count]').forEach(el=>{const t=+el.dataset.count;if(!el.dataset.count)return;const sm=el.querySelector('small').outerHTML;let s=null;const step=ts=>{s=s||ts;const p=Math.min(1,(ts-s)/1100),e=1-Math.pow(1-p,3);el.innerHTML=Math.round(t*e)+sm;if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
+function go(d){const days=D.map(x=>x.date);if(d<days[0])d=days[0];if(d>days[days.length-1])d=days[days.length-1];SEL=d;render()}
+function boot(rows){D=rows.sort((a,b)=>a.date<b.date?-1:1);IDX={};D.forEach(r=>IDX[r.date]=r);const last=D[D.length-1].date;
+ $('#asof').textContent='Snapshot from Apple Health export · data as of '+fmtD(last)+' · '+D[0].date.slice(0,4)+'–'+last.slice(0,4);
+ $('#dpick').min=D[0].date;$('#dpick').max=last;$('#app').style.display='';SEL=last;render();
+ if(window.__wired)return;window.__wired=1;
+ $('#prev').onclick=()=>go(addD(SEL,-1));$('#next').onclick=()=>go(addD(SEL,1));$('#dpick').onchange=e=>e.target.value&&go(e.target.value);
+ $('#strip').onclick=e=>{const t=e.target.closest('.dy');if(t)go(t.dataset.d)};
+ document.addEventListener('keydown',e=>{if(e.key=='ArrowLeft')go(addD(SEL,-1));if(e.key=='ArrowRight')go(addD(SEL,1))});
+ let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>80&&!e.target.closest('.strip'))go(addD(SEL,dx>0?-1:1));tx=null},{passive:true})}
+async function init(){const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'cw-fitness-auth'}});
+ const {data:{session}}=await sb.auth.getSession();if(!session){$('#gate').style.display='block';return}
+ const CK='cw-health-cache';try{const c=JSON.parse(localStorage.getItem(CK));if(c&&c.length)boot(c)}catch(e){}
+ let all=[];for(let from=0;;from+=1000){const {data,error}=await sb.from('health_daily').select('*').order('date').range(from,from+999);if(error){$('#asof').textContent='Could not load: '+error.message;$('#app').style.display='';return}all=all.concat(data);if(data.length<1000)break}
+ if(!all.length){$('#asof').textContent='No health data yet';$('#app').style.display='';return}
+ const slim=all.map(r=>{const o={};for(const k in r)if(r[k]!=null&&k!='user_id'&&k!='updated_at')o[k]=typeof r[k]=='string'&&k!='date'&&k!='sleep_src'?+r[k]:r[k];return o});
+ try{localStorage.setItem(CK,JSON.stringify(slim))}catch(e){}const keep=SEL;boot(slim);if(keep)go(keep)}
+init();
+</script></body></html>
